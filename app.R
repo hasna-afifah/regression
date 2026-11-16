@@ -166,6 +166,27 @@ ui <- page_navbar(
           tags$li(tags$strong("Visualise"), " — regression line with confidence bands (80%–99%); ",
                   "download as PNG.")
         ),
+        tags$div(
+          class = "alert alert-info py-2 px-3", style = "font-size: 0.88rem;",
+          tags$strong("Regression tips"), tags$br(),
+          tags$ul(class = "mb-0 mt-1",
+            tags$li("For ", tags$strong("logistic regression"), ": make sure your response is 0/1, ",
+                    "choose GLM → Binomial."),
+            tags$li("For ", tags$strong("Poisson regression"), " (count data): ",
+                    "choose GLM → Poisson. If the dispersion statistic is well above 1, switch to Negative binomial."),
+            tags$li("For ", tags$strong("Gaussian response curves"),
+                    " (e.g. species abundance vs pH): ",
+                    "use Polynomial Regression with degree 2."),
+            tags$li("For ", tags$strong("positive right-skewed responses"), " (biomass, DBH): ",
+                    "use a Gamma GLM with log link, or log-transform the response and fit a linear model."),
+            tags$li("For ", tags$strong("proportions"), " (canopy cover %): logit-transform first, ",
+                    "or use a binomial GLM if the proportion comes from counts."),
+            tags$li(tags$strong("Scale predictors"), " when variables are measured on different units."),
+            tags$li("For ", tags$strong("grouped or repeated data"), " (plots within sites, re-measured plots): ",
+                    "add the grouping variable as a ", tags$strong("random factor"), " instead of ignoring it."),
+            tags$li("Always check the ", tags$strong("diagnostic plots"), " before trusting regression results.")
+          )
+        ),
 
         tags$h5("7. Multivariate analysis (Multivariate)"),
         tags$ul(
@@ -177,28 +198,89 @@ ui <- page_navbar(
         ),
 
         hr(),
-        tags$h5("Tips"),
+        tags$h4("Tips"),
+
+        tags$h5("General"),
         tags$ul(
           tags$li(tags$strong("Start with the Guide"), " if you are not sure which analysis to use."),
           tags$li("Explore data types and distributions first — it tells you which method ",
                   "is appropriate."),
           tags$li(tags$strong("Normality matters for the residuals"), " (or the values within each group), ",
                   "not for the pooled raw variable."),
-          tags$li("If data are not normally distributed, try a transformation (Transform tab) ",
-                  "before fitting a linear model, or use a GLM for counts and presence/absence."),
-          tags$li("For ", tags$strong("logistic regression"), ": make sure your response is 0/1, ",
-                  "choose GLM → Binomial."),
-          tags$li("For ", tags$strong("Poisson regression"), " (count data): ",
-                  "choose GLM → Poisson. If the dispersion statistic is well above 1, switch to Negative binomial."),
-          tags$li("For ", tags$strong("Gaussian response curves"),
-                  " (e.g. species abundance vs pH): ",
-                  "use Polynomial Regression with degree 2."),
-          tags$li(tags$strong("Scale predictors"), " when variables are measured on different units."),
-          tags$li("For ", tags$strong("grouped or repeated data"), " (plots within sites, re-measured plots): ",
-                  "add the grouping variable as a ", tags$strong("random factor"), " instead of ignoring it."),
-          tags$li("Report ", tags$strong("effect sizes"), " (difference in means, r, R², Cohen's d) ",
+          tags$li("Report ", tags$strong("effect sizes"), " (difference in means, r, R², Cohen's d, eta-squared) ",
                   "alongside every p-value."),
-          tags$li("Always ", tags$strong("check diagnostic plots"), " before trusting your results.")
+          tags$li("Always check ", tags$strong("assumptions and diagnostics"), " before trusting your results.")
+        ),
+
+        tags$h5("Data & exploration"),
+        tags$ul(
+          tags$li("Check the ", tags$strong("raw distributions"), " before jumping into analysis; ",
+                  "a histogram or boxplot can reveal outliers, skew, or unexpected gaps."),
+          tags$li("Use the ", tags$strong("correlation matrix"), " early to spot collinearity — ",
+                  "highly correlated predictors can inflate standard errors in regression.")
+        ),
+
+        tags$h5("Transformation"),
+        tags$ul(
+          tags$li("Right-skewed positive data (biomass, DBH): try ", tags$strong("log"), " or ",
+                  tags$strong("square root"), "."),
+          tags$li("Counts (stems, seedlings): ", tags$strong("square root"), " or ",
+                  tags$strong("ln(x + 1)"), " — but a Poisson / negative binomial GLM ",
+                  "is usually better than transforming."),
+          tags$li("Proportions or percentages (canopy cover): ", tags$strong("logit"), " or ",
+                  tags$strong("arcsine-sqrt"), " — or a binomial GLM if the proportion comes from counts."),
+          tags$li("Left-skewed data: try ", tags$strong("squaring"), "."),
+          tags$li("Not sure? Let ", tags$strong("Box-Cox"), " (x > 0) or ",
+                  tags$strong("Yeo-Johnson"), " pick the power for you; the ranking table ",
+                  "compares all options at a glance."),
+          tags$li("Re-check the model diagnostics ", tags$strong("after"), " transforming — ",
+                  "the Q-Q plot of the original raw variable is not what matters.")
+        ),
+
+        tags$h5("Comparing groups"),
+        tags$ul(
+          tags$li("Parametric tests (t-test, ANOVA) compare ", tags$strong("means"),
+                  " and assume normal residuals; non-parametric tests (Wilcoxon, Mann-Whitney, ",
+                  "Kruskal-Wallis) work on ", tags$strong("ranks"), " — use them when normality ",
+                  "fails and transformation doesn't help."),
+          tags$li("For ", tags$strong("two independent groups"), ", Welch's t-test is the safer default ",
+                  "because it does not assume equal variances."),
+          tags$li("For ", tags$strong("paired data"), " (same plots measured twice), the assumption is ",
+                  "normality of the ", tags$em("differences"), ", not of the raw values."),
+          tags$li("With ", tags$strong("unequal variances"), " across three or more groups, use ",
+                  "Welch's ANOVA instead of the classic one-way ANOVA."),
+          tags$li("If residuals of a two-way ANOVA are not normal, transform the response or ",
+                  "model the data with a GLM in the Regression tab (factors can be used as predictors).")
+        ),
+
+        tags$h5("Correlation"),
+        tags$ul(
+          tags$li(tags$strong("Pearson"), " measures how close the points are to a straight line — it needs ",
+                  "roughly normal variables and is sensitive to outliers."),
+          tags$li(tags$strong("Spearman"), " is Pearson on the ranks: it detects any monotonic relationship ",
+                  "and is robust to outliers and skew."),
+          tags$li("If ", tags$strong("Spearman is clearly larger"), " than Pearson, the relationship is ",
+                  "probably curved or influenced by outliers."),
+          tags$li("Correlation is symmetric and says nothing about ", tags$strong("cause"),
+                  " — to predict Y from X use the Regression tab."),
+          tags$li("For ", tags$strong("chi-square tests"), ", expected counts should be ≥ 5 in most cells; ",
+                  "otherwise rely on ", tags$strong("Fisher's exact test"), " or merge rare categories.")
+        ),
+
+        tags$h5("Multivariate"),
+        tags$ul(
+          tags$li(tags$strong("PCA"), " is for continuous environmental variables (soil, stand structure); ",
+                  "for species abundance tables (many zeros, non-linear) use ", tags$strong("NMDS"), " instead."),
+          tags$li("Standardise (scale) PCA variables when their ", tags$strong("units differ"),
+                  "; the app does this by default."),
+          tags$li("Export ", tags$strong("PC scores"), " and use them as predictors in regression to avoid ",
+                  "collinearity among the original variables."),
+          tags$li("NMDS ", tags$strong("stress"), " < 0.05 = excellent, < 0.1 = good, < 0.2 = usable, ",
+                  "> 0.2 = poor — consider more dimensions or removing outlier plots."),
+          tags$li("If ", tags$strong("betadisper"), " is significant, a significant PERMANOVA may partly ",
+                  "reflect differences in within-group spread, not only in average composition."),
+          tags$li("For cluster analysis, use ", tags$strong("Euclidean distance on standardised variables"),
+                  " for environmental data and ", tags$strong("Bray-Curtis"), " for species abundance data.")
         ),
 
         tags$h5("Learning material"),

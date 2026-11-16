@@ -864,5 +864,4 @@ that gradient at constant elevation.
 
 ---
 
-*Module and app: Hasna Afifah with Claude assistance. Example data are
-simulated for teaching.*
+*Module and app: Hasna Afifah with Claude assistance. Example data are randomly generated only for teaching purposes.*

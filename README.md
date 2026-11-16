@@ -192,6 +192,23 @@ Four sub-tabs walk you through the modelling workflow:
 | **Diagnostics** | Q-Q plot, Shapiro-Wilk test, Residuals vs Fitted, Scale-Location. Warnings appear when an assumption is violated. |
 | **Visualise** | Regression line with confidence bands (80%–99%); download as PNG. |
 
+> **Regression tips**
+>
+> - For **logistic regression**: make sure your response is 0/1, choose
+>   GLM → Binomial.
+> - For **Poisson regression** (count data): choose GLM → Poisson; switch to
+>   Negative binomial if the dispersion statistic is well above 1.
+> - For **Gaussian response curves** (e.g. species abundance vs pH): use
+>   Polynomial Regression with degree 2.
+> - For **positive right-skewed responses** (biomass, DBH): use a Gamma GLM
+>   with log link, or log-transform the response and fit a linear model.
+> - For **proportions** (canopy cover %): logit-transform first, or use a
+>   binomial GLM if the proportion comes from counts.
+> - **Scale predictors** when variables are measured on different units.
+> - For **grouped or repeated data** (plots within sites, re-measured plots):
+>   add the grouping variable as a **random factor** instead of ignoring it.
+> - Always check the **diagnostic plots** before trusting regression results.
+
 ### 7. Multivariate analysis (Multivariate)
 
 - **PCA**: biplot, scree plot, loadings table; export PC scores to your data.
@@ -204,25 +221,80 @@ Four sub-tabs walk you through the modelling workflow:
 
 ## Tips
 
+### General
+
 - **Start with the Guide** if you are not sure which analysis to use.
 - Explore data types and distributions first — it tells you which method is
   appropriate.
 - **Normality matters for the residuals** (or the values within each group),
   not for the pooled raw variable.
-- If data are not normally distributed, try a transformation (Transform tab)
-  before fitting a linear model, or use a GLM for counts and presence/absence.
-- For **logistic regression**: make sure your response is 0/1, choose
-  GLM → Binomial.
-- For **Poisson regression** (count data): choose GLM → Poisson; switch to
-  Negative binomial if the dispersion statistic is well above 1.
-- For **Gaussian response curves** (e.g. species abundance vs pH): use
-  Polynomial Regression with degree 2.
-- **Scale predictors** when variables are measured on different units.
-- For **grouped or repeated data** (plots within sites, re-measured plots): add
-  the grouping variable as a **random factor** instead of ignoring it.
-- Report **effect sizes** (difference in means, r, R², Cohen's d) alongside
-  every p-value.
-- Always **check diagnostic plots** before trusting your results.
+- Report **effect sizes** (difference in means, r, R², Cohen's d, eta-squared)
+  alongside every p-value.
+- Always check **assumptions and diagnostics** before trusting your results.
+
+### Data & exploration
+
+- Check the **raw distributions** before jumping into analysis; a histogram
+  or boxplot can reveal outliers, skew, or unexpected gaps.
+- Use the **correlation matrix** early to spot collinearity — highly correlated
+  predictors can inflate standard errors in regression.
+
+### Transformation
+
+- Right-skewed positive data (biomass, DBH): try **log** or **square root**.
+- Counts (stems, seedlings): **square root** or **ln(x + 1)** — but a Poisson
+  / negative binomial GLM is usually better than transforming.
+- Proportions or percentages (canopy cover): **logit** or **arcsine-sqrt** — or
+  a binomial GLM if the proportion comes from counts.
+- Left-skewed data: try **squaring**.
+- Not sure? Let **Box-Cox** (x > 0) or **Yeo-Johnson** pick the power for you;
+  the ranking table compares all options at a glance.
+- Re-check the model diagnostics **after** transforming — the Q-Q plot of the
+  original raw variable is not what matters.
+
+### Comparing groups
+
+- Parametric tests (t-test, ANOVA) compare **means** and assume normal
+  residuals; non-parametric tests (Wilcoxon, Mann-Whitney, Kruskal-Wallis)
+  work on **ranks** — use them when normality fails and transformation doesn't
+  help.
+- For **two independent groups**, Welch's t-test is the safer default because
+  it does not assume equal variances.
+- For **paired data** (same plots measured twice), the assumption is normality
+  of the **differences**, not of the raw values.
+- With **unequal variances** across three or more groups, use Welch's ANOVA
+  instead of the classic one-way ANOVA.
+- If residuals of a two-way ANOVA are not normal, transform the response or
+  model the data with a GLM in the Regression tab (factors can be used as
+  predictors).
+
+### Correlation
+
+- **Pearson** measures how close the points are to a straight line — it needs
+  roughly normal variables and is sensitive to outliers.
+- **Spearman** is Pearson on the ranks: it detects any monotonic relationship
+  and is robust to outliers and skew.
+- If **Spearman is clearly larger** than Pearson, the relationship is probably
+  curved or influenced by outliers.
+- Correlation is symmetric and says nothing about **cause** — to predict Y from
+  X use the Regression tab.
+- For **chi-square tests**, expected counts should be ≥ 5 in most cells;
+  otherwise rely on **Fisher's exact test** or merge rare categories.
+
+### Multivariate
+
+- **PCA** is for continuous environmental variables (soil, stand structure);
+  for species abundance tables (many zeros, non-linear) use **NMDS** instead.
+- Standardise (scale) PCA variables when their **units differ**; the app does
+  this by default.
+- Export **PC scores** and use them as predictors in regression to avoid
+  collinearity among the original variables.
+- NMDS **stress** < 0.05 = excellent, < 0.1 = good, < 0.2 = usable, > 0.2 =
+  poor — consider more dimensions or removing outlier plots.
+- If **betadisper** is significant, a significant PERMANOVA may partly reflect
+  differences in within-group spread, not only in average composition.
+- For cluster analysis, use **Euclidean distance on standardised variables**
+  for environmental data and **Bray-Curtis** for species abundance data.
 
 ---
 
