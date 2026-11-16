@@ -137,64 +137,92 @@ Regenerate them with `Rscript data-raw/make_example_data.R`.
 
 ## How it works — a walkthrough
 
-### 1. Upload your data
+### 0. Not sure which test to use? (Guide)
+
+Answer two or three questions in the **Method chooser** or study the decision
+chart — the app recommends a method, tells you where to find it, and shows the
+R code and an ecological example.
+
+### 1. Upload your data (Data)
 
 Accepted formats: Excel (`.xlsx`, `.xls`) or CSV. Each column = one variable.
-The app auto-detects sheet names for Excel files.
+The app auto-detects sheet names for Excel files. You can also click
+**Load example data** to try everything with a simulated forest dataset.
 
-### 2. Explore your data
+### 2. Explore your data (Explore)
 
-- Check distributions of individual variables (histogram, density, boxplot).
+- Check distributions of individual variables (histogram, density, boxplot),
+  optionally split by a grouping variable.
 - Look at bivariate scatter plots with a LOESS smoother.
 - Inspect the correlation matrix to spot collinearity before modelling.
 
-### 3. Set up your model (Regression → Model setup)
+### 3. Check and fix normality (Transform)
 
-- Pick the response (Y) and one or more predictors (X).
-- For **GLM**, choose the family (Poisson for counts, Binomial for 0/1, etc.) and link function.
-- Optionally **scale** predictors (recommended when they are on different measurement scales).
-- Optionally include **two-way interactions**.
-- Optionally add **random factors** (site, block, plot ID, year) when observations
-  are grouped or repeated; the app fits a mixed model with a random intercept
-  per factor, e.g. `y ~ x + (1 | site)`.
+- Run a Shapiro-Wilk test and Q-Q plot on any numeric column.
+- Try 10+ transformations (log, ln(x + 1), square root, cube root, reciprocal,
+  square, arcsine-sqrt, logit, Box-Cox, Yeo-Johnson, rank-based inverse normal)
+  — the app ranks them all and lets you add the best one to your data.
+- See the before/after Q-Q plot side by side.
 
-### 4. Interpret results (Regression → Results)
+### 4. Compare groups (Compare groups)
 
-- Coefficient table with estimates, standard errors, t/z-values, p-values, and confidence intervals.
-- Fit statistics: R², adjusted R², F-test (for `lm`), deviance and AIC (for `glm`),
-  marginal and conditional R² (for mixed models).
-- **VIF** table appears automatically when you have 2+ predictors (VIF > 5 = concern).
-- With random factors: variance components and the intraclass correlation.
+- **One-sample**, **two-sample** (Welch / Student) and **paired t-tests**.
+- **One-way ANOVA** + Tukey HSD, **Welch's ANOVA**, and **two-way ANOVA**.
+- Non-parametric alternatives: **Wilcoxon signed-rank**, **Mann-Whitney U**,
+  **Kruskal-Wallis** with pairwise comparisons.
+- Automatic assumption checks (normality, equal variances) and **effect sizes**
+  (Cohen's d, eta-squared).
 
-### 5. Check diagnostics (Regression → Diagnostics)
+### 5. Measure correlation (Correlation)
 
-- **Q-Q plot**: points should follow the dashed line if residuals are normal.
-- **Shapiro-Wilk test**: formal normality test (p < 0.05 = residuals not normal).
-- **Residuals vs Fitted**: look for random scatter (no patterns = good).
-- **Scale-Location**: checks homoscedasticity (constant variance).
+- **Pearson**, **Spearman**, and **Kendall** correlation side by side, with
+  significance and confidence intervals.
+- Full correlation matrix with significance stars.
+- **Chi-square** tests of independence and goodness of fit, **Fisher's exact
+  test**, and **Cramér's V** for categorical variables.
 
-### 6. Visualise (Regression → Visualise)
+### 6. Fit a regression model (Regression)
 
-- Regression line overlaid on data with confidence bands.
-- Adjust confidence level (80%–99%).
-- Download the plot as PNG.
+Four sub-tabs walk you through the modelling workflow:
+
+| Sub-tab | What you do |
+|---------|-------------|
+| **Model setup** | Pick response (Y) and predictor(s) (X); choose Linear, Polynomial, or GLM (Gaussian, Poisson, Negative binomial, Binomial, Gamma, Inverse Gaussian); optionally **scale** predictors, include **interactions**, or add **random factors** (site, block, year → mixed model). |
+| **Results** | Coefficient table (estimates, SE, t/z, p, CI); fit statistics (R², adj. R², F-test, AIC, deviance, marginal/conditional R²); **VIF** for collinearity; variance components and ICC for mixed models. |
+| **Diagnostics** | Q-Q plot, Shapiro-Wilk test, Residuals vs Fitted, Scale-Location. Warnings appear when an assumption is violated. |
+| **Visualise** | Regression line with confidence bands (80%–99%); download as PNG. |
+
+### 7. Multivariate analysis (Multivariate)
+
+- **PCA**: biplot, scree plot, loadings table; export PC scores to your data.
+- **NMDS** (Bray-Curtis): ordination plot with group ellipses; **PERMANOVA**
+  and betadisper test for compositional differences.
+- **Hierarchical cluster analysis**: dendrogram with group labels; Euclidean or
+  Bray-Curtis distance.
 
 ---
 
 ## Tips
 
-- For **logistic regression**: make sure your response is 0/1, choose GLM → Binomial.
+- **Start with the Guide** if you are not sure which analysis to use.
+- Explore data types and distributions first — it tells you which method is
+  appropriate.
+- **Normality matters for the residuals** (or the values within each group),
+  not for the pooled raw variable.
+- If data are not normally distributed, try a transformation (Transform tab)
+  before fitting a linear model, or use a GLM for counts and presence/absence.
+- For **logistic regression**: make sure your response is 0/1, choose
+  GLM → Binomial.
 - For **Poisson regression** (count data): choose GLM → Poisson; switch to
   Negative binomial if the dispersion statistic is well above 1.
-- For **Gaussian curves** (e.g. species abundance vs pH): use Polynomial Regression with degree 2.
-- If your data are not normally distributed, try a transformation (Transform tab)
-  before fitting a linear model, or use a GLM for counts and presence/absence.
+- For **Gaussian response curves** (e.g. species abundance vs pH): use
+  Polynomial Regression with degree 2.
+- **Scale predictors** when variables are measured on different units.
 - For **grouped or repeated data** (plots within sites, re-measured plots): add
-  the grouping variable as a random factor.
-- Normality matters for the **residuals** (or the values within each group),
-  not for the pooled raw variable.
-- Report effect sizes alongside p-values.
-- Always check diagnostics before trusting results.
+  the grouping variable as a **random factor** instead of ignoring it.
+- Report **effect sizes** (difference in means, r, R², Cohen's d) alongside
+  every p-value.
+- Always **check diagnostic plots** before trusting your results.
 
 ---
 
