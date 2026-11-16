@@ -66,8 +66,7 @@ without your own file.
 
 ### Online
 
-See **[DEPLOY.md](DEPLOY.md)** for a step-by-step guide to deploying (or
-updating) the app on shinyapps.io.
+Access through https://hasna-afifah.shinyapps.io/trend-analysis-tool/ 
 
 ## Repository layout
 
