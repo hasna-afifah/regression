@@ -1,0 +1,868 @@
+---
+title: "Statistics for Forest Ecologists"
+subtitle: "A hands-on module with R and the Ecological Statistics Toolkit"
+author: "Hasna Afifah (with Claude assistance)"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    df_print: kable
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.width = 7, fig.height = 4.2, fig.align = "center",
+                      comment = "#>")
+library(ggplot2)
+library(car)
+theme_set(theme_minimal(base_size = 12))
+green <- "#2c7a3e"; red <- "#c0392b"; orange <- "#d35400"
+pal <- c(Agroforest = "#2c7a3e", Logged = "#d35400", Plantation = "#2471a3", Primary = "#8e44ad")
+p_txt <- function(p) if (p < 0.001) "p < 0.001" else sprintf("p = %.3f", p)
+```
+
+# About this module
+
+**Who it is for.** Ecologists and foresters who collect plot data and want to
+choose, run and report the right analysis - without a statistics degree.
+
+**What you will learn.**
+
+1. How to choose a method from the type of question and the type of data.
+2. How to check normality and transform a variable.
+3. How to compare groups (t-tests, ANOVA, and their rank-based alternatives).
+4. How to measure correlation (Pearson vs Spearman) and test categorical
+   variables (chi-square).
+5. How to model a response (linear models, GLMs, and random factors).
+6. How to summarise many variables at once (PCA, NMDS, PERMANOVA, clustering).
+
+**How to use it.** Every example is shown twice: as R code you can copy, and as
+a recipe for the Shiny app (boxes marked **In the app**). Start the app with
+`shiny::runApp()` from the repository folder, go to **1. Data** and click
+**Load example data**.
+
+## The example data
+
+Both datasets are **simulated** (script: `data-raw/make_example_data.R`). They
+imitate a plot survey in a lowland tropical forest landscape with four forest
+types, 30 plots each. Because we built them, we know the true patterns - which
+makes them ideal for learning. Do not cite the numbers as real findings.
+
+```{r data}
+d    <- read.csv("../data/forest_plots.csv")
+comm <- read.csv("../data/tree_community.csv", check.names = FALSE)
+d$forest_type <- factor(d$forest_type)
+str(d, vec.len = 2)
+```
+
+| Variable | Meaning | Type |
+|---|---|---|
+| `site` | 12 sites, 10 plots each | grouping (random factor) |
+| `forest_type` | Primary, Logged, Agroforest, Plantation | categorical |
+| `elevation_m`, `slope_deg` | Topography | continuous |
+| `canopy_cover_pct` | Canopy cover (%) | percentage |
+| `soil_pH`, `soil_C_pct`, `soil_N_pct`, `litter_depth_cm` | Soil | continuous |
+| `basal_area_m2ha`, `tree_density_ha` | Stand structure | continuous |
+| `agb_Mg_ha` | Above-ground biomass | continuous, right-skewed |
+| `canopy_height_m` | Canopy height (varies between sites) | continuous |
+| `species_richness` | Tree species per plot | count |
+| `seedling_count` | Seedlings per plot | count, overdispersed |
+| `understory_cover_pct` | Understory cover (%) | percentage |
+| `hornbill_present` | Hornbill detected (1) or not (0) | binary |
+| `fire_history` | Burned / Unburned | categorical |
+| `soil_moisture_dry_pct`, `soil_moisture_wet_pct` | Same plot, two seasons | paired |
+
+`tree_community.csv` holds stem counts of 14 tree taxa in 40 plots (10 per
+forest type) for the multivariate section.
+
+# Which method should I use?
+
+Two questions decide almost everything:
+
+1. **What is my question?** Comparing groups, relating two variables,
+   predicting a response, or summarising many variables.
+2. **What kind of data is my response?** Continuous, count, binary,
+   proportion - and does it meet the assumptions of the classical test?
+
+```{r chart, echo=FALSE, out.width="100%"}
+knitr::include_graphics("../www/method_decision_chart.png")
+```
+
+> **In the app:** the **Guide** tab shows this chart and a short questionnaire
+> that returns the recommended method, the tab where it lives, and the R code.
+
+Three ideas run through the whole module:
+
+- **Parametric tests** (t-test, ANOVA, Pearson, linear regression) assume that
+  the *residuals* - what is left after removing group means or the fitted line -
+  are roughly normal with similar spread. They are the most powerful choice
+  when that holds.
+- When it does not hold you have three options: **transform** the variable,
+  switch to a **rank-based (non-parametric)** test, or use a **GLM** that
+  matches the data type (counts, presence/absence).
+- Most methods here assume **independent observations**. Plots clustered in
+  sites, or the same trees measured every year, are not independent: use a
+  paired test, or add the grouping as a **random factor** (Section 6.7).
+
+# Normality and transformation
+
+**Ecological question.** Above-ground biomass (AGB) usually has many small
+values and a few very large ones. Can we make it "normal enough" for a t-test
+or a linear model?
+
+## Look first, test second
+
+```{r norm-raw, fig.height=3.4}
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+hist(d$agb_Mg_ha, breaks = 20, col = green, border = "white",
+     main = "AGB (raw)", xlab = "Mg / ha")
+qqnorm(d$agb_Mg_ha, pch = 16, col = green, main = "Q-Q plot (raw)")
+qqline(d$agb_Mg_ha, col = red, lty = 2)
+shapiro.test(d$agb_Mg_ha)
+```
+
+The histogram has a long right tail and the Q-Q points bend away from the line.
+Shapiro-Wilk agrees: `r p_txt(shapiro.test(d$agb_Mg_ha)$p.value)`, so we reject
+normality. (For Shapiro-Wilk, **p < 0.05 means "not normal"**.)
+
+## Transform and re-check
+
+```{r norm-log, fig.height=3.4}
+d$agb_log <- log(d$agb_Mg_ha)
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+hist(d$agb_log, breaks = 20, col = green, border = "white",
+     main = "ln(AGB)", xlab = "ln(Mg / ha)")
+qqnorm(d$agb_log, pch = 16, col = green, main = "Q-Q plot (log)")
+qqline(d$agb_log, col = red, lty = 2)
+shapiro.test(d$agb_log)
+```
+
+After the log transformation the points follow the line and Shapiro-Wilk no
+longer rejects normality (`r p_txt(shapiro.test(d$agb_log)$p.value)`).
+
+## A transformation cheat-sheet
+
+| Data | Typical shape | Try | Often better |
+|---|---|---|---|
+| Biomass, DBH, basal area, concentrations | right-skewed, > 0 | `log(x)`; `sqrt(x)` if mild | Gamma GLM |
+| Counts (stems, seedlings, species) | right-skewed, zeros | `sqrt(x)`, `log(x + 1)` | Poisson / negative binomial GLM |
+| Proportions, % cover | squeezed at 0 and 100 | logit, arcsine-square-root | binomial GLM |
+| Left-skewed | long left tail | `x^2` | - |
+| Unsure | any | Box-Cox (x > 0), Yeo-Johnson | - |
+
+Box-Cox finds the power transformation that best normalises the data:
+
+```{r boxcox}
+lambda <- car::powerTransform(d$agb_Mg_ha)$lambda
+lambda
+```
+
+A lambda near 0 means "use the log"; near 0.5 the square root; near 1 no
+transformation. Here lambda = `r round(lambda, 2)`, close to the log.
+
+**Three cautions.**
+
+1. What must be normal is the **residuals** (or the values *within* each
+   group), not the pooled raw variable. A variable that differs strongly
+   between forest types can look non-normal overall and still be fine.
+2. After a log transformation, differences are **ratios**: back-transforming a
+   mean of logs gives the *geometric* mean, not the arithmetic mean.
+3. With large samples Shapiro-Wilk flags trivial deviations. Trust the Q-Q plot.
+
+> **In the app:** **3. Transform** - choose `agb_Mg_ha`, pick a transformation,
+> compare the before/after histograms and Q-Q plots, read the ranking table of
+> all transformations, then click **Add transformed column to data** so the new
+> variable can be used in every other tab.
+
+# Comparing groups
+
+## One sample against a reference value
+
+**Question.** Suppose liming is recommended when soil pH is below 5.5. Is mean
+soil pH in our plots different from 5.5?
+
+```{r one-t}
+t.test(d$soil_pH, mu = 5.5)
+```
+
+Mean pH is `r round(mean(d$soil_pH), 2)`, and the 95% confidence interval does
+not include 5.5: the soils are significantly more acidic than the threshold
+(`r p_txt(t.test(d$soil_pH, mu = 5.5)$p.value)`).
+Non-parametric alternative: `wilcox.test(d$soil_pH, mu = 5.5)`.
+
+## Two independent groups: t-test or Mann-Whitney
+
+**Question.** Is basal area higher in primary than in logged forest?
+
+```{r two-t, fig.height=3.6}
+two <- droplevels(subset(d, forest_type %in% c("Primary", "Logged")))
+ggplot(two, aes(forest_type, basal_area_m2ha, fill = forest_type)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) + geom_jitter(width = 0.1, alpha = 0.5) +
+  scale_fill_manual(values = pal) + labs(x = NULL, y = "Basal area (m2/ha)") +
+  theme(legend.position = "none")
+tapply(two$basal_area_m2ha, two$forest_type, shapiro.test)   # normal within each group?
+tt <- t.test(basal_area_m2ha ~ forest_type, data = two)       # Welch's t-test (default)
+tt
+```
+
+Basal area is normal within each group, so the t-test is appropriate. R's
+default is **Welch's** t-test, which does not assume equal variances - keep
+that default. Primary forest has on average
+`r round(abs(diff(tt$estimate)), 1)` m2/ha more basal area than logged forest
+(`r p_txt(tt$p.value)`).
+
+**When the data are not normal**, compare ranks instead. Seedling counts are
+strongly skewed:
+
+```{r mw}
+tapply(d$seedling_count, d$fire_history, median)
+wilcox.test(seedling_count ~ fire_history, data = d)
+```
+
+Burned plots have a higher median seedling count than unburned plots
+(Mann-Whitney U test, `r p_txt(wilcox.test(seedling_count ~ fire_history, data = d)$p.value)`).
+
+## Two paired measurements
+
+**Question.** Each plot was measured in the dry and in the wet season. Is soil
+moisture higher in the wet season?
+
+Because the two values come from the *same plot*, they are not independent.
+The paired t-test analyses the within-plot **differences**, which removes the
+large plot-to-plot variation.
+
+```{r paired}
+dif <- d$soil_moisture_wet_pct - d$soil_moisture_dry_pct
+shapiro.test(dif)                                   # the differences must be normal
+t.test(d$soil_moisture_wet_pct, d$soil_moisture_dry_pct, paired = TRUE)
+```
+
+Soil moisture is on average `r round(mean(dif), 1)` percentage points higher in
+the wet season. If the differences were not normal:
+`wilcox.test(wet, dry, paired = TRUE)`.
+
+A common mistake is to analyse paired data with an unpaired test - it throws
+away the pairing and loses power.
+
+## Three or more groups: one-way ANOVA
+
+**Question.** Does basal area differ among the four forest types?
+
+Running six separate t-tests would inflate the chance of a false positive.
+ANOVA asks one question first - *is there any difference at all?* - and a
+post-hoc test then identifies which pairs differ.
+
+```{r anova, fig.height=3.6}
+ggplot(d, aes(forest_type, basal_area_m2ha, fill = forest_type)) +
+  geom_boxplot(alpha = 0.6, outlier.shape = NA) + geom_jitter(width = 0.12, alpha = 0.45) +
+  scale_fill_manual(values = pal) + labs(x = NULL, y = "Basal area (m2/ha)") +
+  theme(legend.position = "none")
+fit <- aov(basal_area_m2ha ~ forest_type, data = d)
+summary(fit)
+```
+
+**Check the assumptions on the residuals:**
+
+```{r anova-assump}
+shapiro.test(residuals(fit))                           # normal residuals?
+car::leveneTest(basal_area_m2ha ~ forest_type, data = d)  # equal variances?
+```
+
+Both p-values are above 0.05, so the assumptions hold. **Which groups differ?**
+
+```{r tukey}
+TukeyHSD(fit)
+```
+
+```{r anova-num, include=FALSE}
+s <- summary(fit)[[1]]; eta <- s$`Sum Sq`[1] / sum(s$`Sum Sq`)
+```
+
+**How to report it.** "Basal area differed among forest types (one-way ANOVA,
+F(`r s$Df[1]`, `r s$Df[2]`) = `r round(s[["F value"]][1], 1)`,
+`r p_txt(s[["Pr(>F)"]][1])`, eta-squared = `r round(eta, 2)`). Tukey's HSD
+showed that all pairs of forest types differed, with primary forest highest."
+
+**If assumptions fail:**
+
+- unequal variances -> Welch's ANOVA: `oneway.test(y ~ group, data = d)`
+- non-normal residuals -> transform, or Kruskal-Wallis:
+
+```{r kw}
+kruskal.test(seedling_count ~ forest_type, data = d)
+pairwise.wilcox.test(d$seedling_count, d$forest_type, p.adjust.method = "holm")
+```
+
+## Two factors: two-way ANOVA
+
+**Question.** Does basal area depend on forest type, on fire history, and does
+the effect of fire depend on the forest type (interaction)?
+
+```{r anova2, fig.height=3.6}
+fit2 <- aov(basal_area_m2ha ~ forest_type * fire_history, data = d)
+car::Anova(fit2, type = 2)
+with(d, interaction.plot(forest_type, fire_history, basal_area_m2ha,
+                         col = c(red, green), lwd = 2, ylab = "Mean basal area",
+                         xlab = "Forest type", trace.label = "Fire"))
+```
+
+Forest type has a strong effect; fire history and the interaction do not. The
+nearly parallel lines in the interaction plot say the same thing: within a
+forest type, burned and unburned plots have similar basal area.
+
+> **In the app:** **4. Compare groups** - choose the test, the response and the
+> grouping variable. The tab shows the plot, the test, a sentence "in words",
+> descriptive statistics, assumption checks (with a yellow warning and a
+> suggested alternative when one fails), and post-hoc tests with effect sizes.
+
+# Correlation between two variables
+
+## Pearson vs Spearman correlation
+
+**Question 1.** Is soil carbon related to soil nitrogen?
+
+```{r pearson, fig.height=3.5}
+ggplot(d, aes(soil_C_pct, soil_N_pct)) + geom_point(colour = green, alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, colour = red) +
+  labs(x = "Soil C (%)", y = "Soil N (%)")
+cor.test(d$soil_C_pct, d$soil_N_pct, method = "pearson")
+```
+
+The cloud is a straight band and both variables are roughly normal, so
+**Pearson's r** is the right summary:
+r = `r round(cor(d$soil_C_pct, d$soil_N_pct), 2)`, a very strong positive linear
+relationship.
+
+**Question 2.** Is biomass related to basal area?
+
+```{r spearman, fig.height=3.5}
+ggplot(d, aes(basal_area_m2ha, agb_Mg_ha)) + geom_point(colour = green, alpha = 0.7) +
+  geom_smooth(method = "loess", se = FALSE, colour = orange) +
+  labs(x = "Basal area (m2/ha)", y = "AGB (Mg/ha)")
+cor.test(d$basal_area_m2ha, d$agb_Mg_ha, method = "spearman", exact = FALSE)
+```
+
+Here the relationship is curved, biomass is skewed and a few plots are extreme.
+**Spearman's rho** replaces each value by its rank, so it measures whether
+biomass *consistently increases* with basal area without requiring a straight
+line or normality.
+
+| | Pearson r | Spearman rho |
+|---|---|---|
+| Measures | linear correlation | monotonic correlation (ranks) |
+| Assumes | both variables ~normal, no strong outliers | only that values can be ranked |
+| Use for | normal, linear data | skewed data, outliers, curved trends, ordinal scores |
+| Soil C vs N | `r round(cor(d$soil_C_pct, d$soil_N_pct), 2)` | `r round(cor(d$soil_C_pct, d$soil_N_pct, method = "spearman"), 2)` |
+| Basal area vs AGB | `r round(cor(d$basal_area_m2ha, d$agb_Mg_ha), 2)` | `r round(cor(d$basal_area_m2ha, d$agb_Mg_ha, method = "spearman"), 2)` |
+| Basal area vs ln(AGB) | `r round(cor(d$basal_area_m2ha, log(d$agb_Mg_ha)), 2)` | `r round(cor(d$basal_area_m2ha, log(d$agb_Mg_ha), method = "spearman"), 2)` |
+
+Notice the last row: a log transformation changes Pearson's r but **not**
+Spearman's rho, because the log does not change the order of the values.
+
+Remember that correlation is not causation, and that r measures only the
+*strength* of a relationship - to describe *how much* Y changes per unit of X,
+use regression.
+
+## Chi-square test for categorical variables
+
+**Question.** Is fire history related to forest type?
+
+Both variables are categories, so the data are **counts of plots** in a
+contingency table:
+
+```{r chisq}
+tab <- table(d$forest_type, d$fire_history)
+tab
+chi <- chisq.test(tab)
+chi
+round(chi$expected, 1)     # counts expected if fire were unrelated to forest type
+round(chi$stdres, 2)       # which cells deviate most (|value| > 2)
+```
+
+```{r chisq-plot, fig.height=3.4, echo=FALSE}
+ggplot(as.data.frame(tab), aes(Var1, Freq, fill = Var2)) +
+  geom_col(position = "fill", colour = "white") +
+  scale_fill_manual(values = c(Burned = orange, Unburned = green), name = NULL) +
+  scale_y_continuous(labels = function(x) paste0(100 * x, "%")) +
+  labs(x = NULL, y = "Share of plots")
+```
+
+Fire history and forest type are related (chi-squared =
+`r round(chi$statistic, 1)`, df = `r chi$parameter`, `r p_txt(chi$p.value)`):
+far fewer primary-forest plots, and more plantation plots, have burned than
+expected under independence.
+
+**Rules for chi-square.**
+
+- Use **raw counts**, never percentages or means.
+- Each plot is counted once (independent observations).
+- Expected counts should be at least 5 in most cells; otherwise use
+  `fisher.test(tab)` or merge rare categories.
+- A *goodness-of-fit* version compares one variable with expected proportions,
+  e.g. `chisq.test(table(d$fire_history), p = c(0.3, 0.7))`.
+
+> **In the app:** **5. Correlation** - the *Correlation* sub-tab shows the raw
+> scatter (what Pearson sees) next to the rank scatter (what Spearman sees),
+> all three coefficients side by side, and a correlation matrix. The
+> *Chi-square* tab shows observed and expected counts, standardised residuals,
+> Fisher's exact test when needed, and Cramer's V as effect size.
+
+# Regression: predicting a response
+
+Correlation asks *"are X and Y related?"*. Regression asks *"how does Y change
+when X changes, and how well can X predict Y?"*. Choose the model from the
+**type of response variable**.
+
+## Linear regression (continuous response)
+
+**Question.** How does litter depth change with canopy cover?
+
+```{r lm, fig.height=3.5}
+m1 <- lm(litter_depth_cm ~ canopy_cover_pct, data = d)
+summary(m1)
+ggplot(d, aes(canopy_cover_pct, litter_depth_cm)) + geom_point(colour = green, alpha = 0.7) +
+  geom_smooth(method = "lm", colour = red) + labs(x = "Canopy cover (%)", y = "Litter depth (cm)")
+```
+
+**Reading the output.**
+
+- **Slope** = `r round(coef(m1)[2], 3)`: each additional 10 percentage points of
+  canopy cover adds about `r round(10 * coef(m1)[2], 2)` cm of litter.
+- **R-squared** = `r round(summary(m1)$r.squared, 2)`: canopy cover explains
+  `r round(100 * summary(m1)$r.squared)`% of the variation in litter depth.
+- **p-value of the slope**: tests whether the slope differs from zero.
+
+**Always check the diagnostics:**
+
+```{r lm-diag, fig.height=3.6}
+par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+plot(m1, which = 1:2, pch = 16, col = green)
+```
+
+*Residuals vs Fitted* should be a shapeless cloud around zero (no curve, no
+funnel); the *Q-Q plot* should follow the line.
+
+**Multiple regression** adds predictors, including categorical ones:
+
+```{r lm-multi}
+m2 <- lm(litter_depth_cm ~ canopy_cover_pct + slope_deg + forest_type, data = d)
+car::Anova(m2, type = 2)     # one test per predictor
+car::vif(m2)                 # collinearity check
+```
+
+Each coefficient is now the effect of that predictor *holding the others
+constant*. Canopy cover stays significant, while forest type adds nothing once
+canopy cover is known: forest types differ in litter depth mainly *because*
+they differ in canopy cover. The variance inflation factors (first column, about
+6 for both) warn that canopy cover and forest type carry overlapping
+information. When VIF is well above 5, drop one of the two predictors or combine
+correlated predictors with a PCA (Section 7).
+
+## Polynomial regression (hump-shaped response)
+
+**Question.** Understory cover is low under a closed canopy (too dark) and low
+in very open plots (too dry). Is there an optimum?
+
+```{r poly, fig.height=3.5}
+m3 <- lm(understory_cover_pct ~ canopy_cover_pct + I(canopy_cover_pct^2), data = d)
+round(coef(summary(m3)), 4)
+ggplot(d, aes(canopy_cover_pct, understory_cover_pct)) + geom_point(colour = green, alpha = 0.7) +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2), colour = red) +
+  labs(x = "Canopy cover (%)", y = "Understory cover (%)")
+```
+
+The negative quadratic term makes the curve hump-shaped. The optimum is at
+-b1 / (2 x b2) = `r round(-coef(m3)[2] / (2 * coef(m3)[3]))`% canopy cover.
+
+## Poisson GLM (counts)
+
+**Question.** Does tree species richness decline with elevation, and does it
+differ among forest types?
+
+Richness is a count: it cannot be negative and its variance grows with its
+mean. A Poisson GLM models the *logarithm* of the expected count.
+
+```{r pois}
+m4 <- glm(species_richness ~ elevation_m + forest_type, family = poisson, data = d)
+round(coef(summary(m4)), 4)
+exp(coef(m4))                                   # rate ratios
+sum(residuals(m4, type = "pearson")^2) / df.residual(m4)   # dispersion, should be ~1
+```
+
+Coefficients are on the log scale, so exponentiate them:
+exp(100 x `r format(round(coef(m4)[2], 5), scientific = FALSE)`) = `r round(exp(100 * coef(m4)[2]), 2)`,
+i.e. richness falls by about `r round(100 * (1 - exp(100 * coef(m4)[2])))`% for
+every 100 m of elevation. Primary forest has
+`r round(exp(coef(m4)["forest_typePrimary"]), 1)` times the richness of
+agroforest (the reference level) at the same elevation.
+
+## Overdispersion and the negative binomial
+
+**Question.** Do seedling counts decline with canopy cover?
+
+```{r nb}
+m5 <- glm(seedling_count ~ canopy_cover_pct, family = poisson, data = d)
+disp <- sum(residuals(m5, type = "pearson")^2) / df.residual(m5)
+disp
+m6 <- MASS::glm.nb(seedling_count ~ canopy_cover_pct, data = d)
+rbind(Poisson = coef(summary(m5))[2, ], `Neg. binomial` = coef(summary(m6))[2, ])
+AIC(m5, m6)
+```
+
+The dispersion statistic is `r round(disp, 1)`, far above 1: the counts vary
+much more than a Poisson model allows (seedlings are clumped). The Poisson
+standard error is far too small. The **negative binomial** model gives a
+similar slope with an honest standard error and a much lower AIC.
+
+## Logistic regression (presence / absence)
+
+**Question.** Does the probability of detecting a hornbill increase with basal
+area (large trees for nesting and fruit)?
+
+```{r logit, fig.height=3.5}
+m7 <- glm(hornbill_present ~ basal_area_m2ha, family = binomial, data = d)
+round(coef(summary(m7)), 4)
+exp(coef(m7)[2])                                # odds ratio per 1 m2/ha
+nd <- data.frame(basal_area_m2ha = seq(12, 49, length.out = 100))
+nd$p <- predict(m7, nd, type = "response")
+ggplot(d, aes(basal_area_m2ha, hornbill_present)) +
+  geom_jitter(height = 0.03, width = 0, colour = green, alpha = 0.6) +
+  geom_line(data = nd, aes(y = p), colour = red, linewidth = 1) +
+  labs(x = "Basal area (m2/ha)", y = "P(hornbill present)")
+```
+
+Each additional m2/ha of basal area multiplies the *odds* of hornbill presence
+by `r round(exp(coef(m7)[2]), 2)`. The predicted probability reaches 50% at a
+basal area of about `r round(-coef(m7)[1] / coef(m7)[2])` m2/ha.
+
+## Skewed positive response: transform or Gamma GLM
+
+```{r gamma}
+m8 <- lm(log(agb_Mg_ha) ~ basal_area_m2ha, data = d)                       # log-linear model
+m9 <- glm(agb_Mg_ha ~ basal_area_m2ha, family = Gamma(link = "log"), data = d)  # Gamma GLM
+rbind(`lm on log(AGB)` = coef(m8), `Gamma GLM` = coef(m9))
+```
+
+Both say the same thing: biomass increases by about
+`r round(100 * (exp(coef(m8)[2]) - 1), 1)`% per additional m2/ha of basal area.
+
+| Response | Model | R |
+|---|---|---|
+| Continuous, normal residuals | linear model | `lm(y ~ x)` |
+| Count | Poisson GLM | `glm(y ~ x, family = poisson)` |
+| Overdispersed count | negative binomial | `MASS::glm.nb(y ~ x)` |
+| Binary 0/1 | logistic regression | `glm(y ~ x, family = binomial)` |
+| Positive, right-skewed | Gamma GLM or log-LM | `glm(y ~ x, family = Gamma("log"))` |
+| Any of the above, grouped data | mixed model | `lmer(y ~ x + (1 | site))`, `glmer(...)` |
+
+## Random factors: mixed models
+
+**Question.** How does canopy height increase with basal area - given that
+the 120 plots are grouped in 12 sites?
+
+Plots in the same site share soil, climate and history, so they resemble each
+other more than plots from different sites. An ordinary regression treats all
+120 plots as independent pieces of evidence, which they are not.
+
+```{r mixed-plot, fig.height=3.8, echo=FALSE}
+ggplot(d, aes(basal_area_m2ha, canopy_height_m, colour = site)) +
+  geom_point(alpha = 0.8) + geom_smooth(method = "lm", se = FALSE, linewidth = 0.5) +
+  labs(x = "Basal area (m2/ha)", y = "Canopy height (m)") +
+  guides(colour = guide_legend(nrow = 2)) + theme(legend.position = "bottom")
+```
+
+Each site has its own line: similar slopes, but some sites are consistently
+taller than others. A **random intercept** captures exactly that.
+
+```{r mixed}
+library(lme4)
+m_lm  <- lm(canopy_height_m ~ basal_area_m2ha, data = d)                 # ignores sites
+m_lmm <- lmer(canopy_height_m ~ basal_area_m2ha + (1 | site), data = d)  # random intercept per site
+rbind(`lm (sites ignored)` = coef(summary(m_lm))[2, 1:2],
+      `lmer (site random)` = coef(summary(m_lmm))[2, 1:2])
+vc <- as.data.frame(VarCorr(m_lmm)); vc[, c("grp", "vcov", "sdcor")]
+```
+
+```{r mixed-num, include=FALSE}
+icc <- vc$vcov[1] / sum(vc$vcov)
+```
+
+**Reading the output.**
+
+- The **fixed effect** (slope of basal area) is what we want to know. Its
+  standard error is smaller in the mixed model, because the site-to-site
+  variation is no longer mixed into the noise.
+- The **random effect** is summarised by a variance, not by one coefficient
+  per site. Here `r round(100 * icc)`% of the variation that basal area does
+  not explain lies *between sites* (intraclass correlation =
+  `r round(icc, 2)`).
+- Ignoring grouping can mislead in both directions: for predictors that vary
+  *within* sites (as here) you lose precision; for predictors that vary only
+  *between* sites (e.g. site elevation) you get standard errors that are far
+  too small - the classic pseudoreplication error.
+
+**Fixed or random?**
+
+| Use a **fixed** effect when... | Use a **random** factor when... |
+|---|---|
+| the levels are the ones you care about (forest type, treatment) | the levels are a sample of many possible ones (sites, blocks, observers, years) |
+| you want to estimate and compare each level | you only want to account for the variation they cause |
+| few levels | ideally 5 or more levels |
+
+Counts and presence/absence work the same way with `glmer`:
+
+```{r glmm}
+m_glmm <- glmer(species_richness ~ elevation_m + forest_type + (1 | site),
+                family = poisson, data = d)
+round(coef(summary(m_glmm)), 4)
+VarCorr(m_glmm)
+```
+
+In the simulated data richness has no site effect, so the site variance is
+estimated at (almost) zero and the fixed effects equal those of the ordinary
+Poisson GLM - a mixed model costs nothing when the grouping turns out not to
+matter.
+
+> **In the app:** **6. Regression** - *Model setup* (type, response,
+> predictors, family, and optional **Random factor(s)**), *Results* (coefficients, fit statistics, dispersion
+> check, term-level tests, VIF), *Diagnostics* (four residual plots) and
+> *Visualise* (fitted line with confidence band, downloadable). When a random
+> factor is chosen, Results also shows the variance components and the
+> intraclass correlation.
+
+# Multivariate analysis
+
+## PCA: many environmental variables
+
+**Question.** Six soil and structure variables are correlated with each other.
+Can we summarise them as one or two environmental gradients?
+
+```{r pca, fig.height=4.6}
+env  <- d[, c("soil_pH", "soil_C_pct", "soil_N_pct", "litter_depth_cm",
+              "canopy_cover_pct", "basal_area_m2ha")]
+pca  <- prcomp(env, scale. = TRUE)      # scale. = TRUE because the units differ
+summary(pca)$importance[, 1:4]
+round(pca$rotation[, 1:2], 2)           # loadings
+```
+
+```{r pca-plot, fig.height=4.8, echo=FALSE}
+sc <- data.frame(pca$x[, 1:2], forest_type = d$forest_type)
+ld <- data.frame(pca$rotation[, 1:2] * 3.2, var = rownames(pca$rotation))
+ve <- round(100 * summary(pca)$importance[2, 1:2])
+ggplot(sc, aes(PC1, PC2)) +
+  geom_point(aes(colour = forest_type), alpha = 0.75, size = 2) +
+  stat_ellipse(aes(colour = forest_type)) +
+  geom_segment(data = ld, aes(x = 0, y = 0, xend = PC1, yend = PC2),
+               arrow = arrow(length = unit(0.2, "cm"))) +
+  geom_text(data = ld, aes(PC1 * 1.15, PC2 * 1.15, label = var), size = 3.3) +
+  scale_colour_manual(values = pal, name = NULL) +
+  labs(x = paste0("PC1 (", ve[1], "%)"), y = paste0("PC2 (", ve[2], "%)")) +
+  theme(legend.position = "bottom")
+```
+
+**Reading a PCA.**
+
+- **Variance explained**: PC1 captures `r ve[1]`% of the total variation and
+  PC2 another `r ve[2]`%. Two axes replace six variables.
+- **Loadings** tell you what each axis means. Canopy cover, soil C, soil N,
+  litter and basal area all load in the same direction on PC1, so PC1 is a
+  "forest intactness" gradient. PC2 is mostly soil pH.
+- **Biplot**: arrows pointing the same way are positively correlated; points
+  are plots. Primary and plantation plots sit at opposite ends of PC1.
+- Always **standardise** (`scale. = TRUE`) when variables have different units.
+- The scores (`pca$x[, 1]`) can be used as a single predictor in a regression,
+  which solves the collinearity problem of Section 6.
+
+## NMDS and PERMANOVA: species composition
+
+**Question.** Does tree species composition differ among forest types?
+
+Species tables are full of zeros and species respond non-linearly, so PCA is a
+poor tool. **NMDS** starts from a dissimilarity between every pair of plots
+(Bray-Curtis is the standard for abundance data) and arranges the plots so
+that similar plots are close together.
+
+```{r nmds, results="hide"}
+library(vegan)
+sp <- comm[, -(1:3)]                     # the 14 species columns
+set.seed(123)
+nmds <- metaMDS(sp, distance = "bray", k = 2, trymax = 50, autotransform = FALSE, trace = 0)
+```
+
+```{r nmds-plot, fig.height=4.6, echo=FALSE}
+ns <- data.frame(scores(nmds, display = "sites"), forest_type = comm$forest_type)
+ggplot(ns, aes(NMDS1, NMDS2, colour = forest_type)) + geom_point(size = 2.6) +
+  stat_ellipse() + scale_colour_manual(values = pal, name = NULL) + coord_equal() +
+  labs(caption = paste("Stress =", round(nmds$stress, 3))) + theme(legend.position = "bottom")
+```
+
+**Stress** (`r round(nmds$stress, 3)`) measures how well the 2-D map preserves
+the dissimilarities: below 0.1 is good, below 0.2 usable, above 0.2 unreliable.
+NMDS axes have no units - only relative distances matter.
+
+The picture suggests that the forest types hold different communities.
+**PERMANOVA** tests it:
+
+```{r permanova}
+set.seed(123)
+adonis2(vegdist(sp, "bray") ~ forest_type, data = comm, permutations = 999)
+set.seed(123)
+permutest(betadisper(vegdist(sp, "bray"), comm$forest_type))   # equal spread?
+```
+
+Forest type explains a large share of the variation in composition (R2 in the
+table) and the effect is significant. `betadisper` checks whether groups differ
+in *spread*; if it is significant, part of the PERMANOVA result may reflect
+differences in within-group variability rather than in average composition.
+
+## Cluster analysis
+
+**Question.** Ignoring the labels, do the plots fall into natural groups?
+
+```{r cluster, fig.height=4.4}
+hc <- hclust(vegdist(sp, "bray"), method = "ward.D2")
+plot(hc, labels = comm$forest_type, cex = 0.6, main = "", xlab = "", sub = "",
+     ylab = "Bray-Curtis dissimilarity")
+rect.hclust(hc, k = 4, border = pal)
+table(Cluster = cutree(hc, 4), comm$forest_type)
+```
+
+With Ward linkage the four clusters recover the four forest types almost
+perfectly, without ever being told the labels. The result depends on the
+linkage method, though: with `method = "average"` logged and primary plots merge
+into one cluster, because they share most of their species. Treat a dendrogram
+as an exploratory picture, and try more than one linkage before interpreting it.
+
+> **In the app:** **7. Multivariate** - *PCA* (biplot, scree plot, loadings,
+> and a button to add PC scores to the data), *NMDS + PERMANOVA* (load the
+> "Tree community" example first) and *Cluster analysis*.
+
+# Reporting and common pitfalls
+
+**Report four things:** the test, the test statistic with its degrees of
+freedom, the p-value, and an **effect size** with units (difference in means,
+slope, r, R-squared, odds ratio). "Primary forest had 9.3 m2/ha more basal
+area than logged forest (Welch t-test, t = ..., df = ..., p < 0.001)" tells the
+reader far more than "p < 0.001".
+
+**Pitfalls.**
+
+1. **Pseudoreplication.** Ten subplots in one forest are not ten independent
+   forests. The unit of replication is the unit to which the "treatment"
+   applies. Add the grouping as a random factor (Section 6.7).
+2. **Multiple testing.** Twenty tests at 0.05 produce one false positive on
+   average. Use post-hoc corrections (Tukey, Holm) and decide your questions in
+   advance.
+3. **Significant is not important.** With many plots, tiny differences become
+   significant; with few plots, large differences may not. Look at effect sizes
+   and confidence intervals.
+4. **"Not significant" is not "no effect".** It means the data cannot tell.
+5. **Testing assumptions on the wrong thing.** Check residuals, not raw data.
+6. **Transforming counts when a GLM would do.** `log(x + 1)` on counts with many
+   zeros behaves badly; use a Poisson or negative binomial GLM.
+7. **Extrapolating.** A regression fitted between 60 and 900 m says nothing
+   about 1500 m.
+
+# Exercises
+
+Use the forest plot data (R or the app). Answers are hidden - try first.
+
+**1.** Is canopy cover normally distributed (a) across all plots and (b) within
+each forest type? What does this tell you about checking assumptions?
+
+<details><summary>Answer</summary>
+
+```{r ex1}
+shapiro.test(d$canopy_cover_pct)$p.value
+round(sapply(split(d$canopy_cover_pct, d$forest_type), function(x) shapiro.test(x)$p.value), 3)
+```
+Pooled, canopy cover is clearly non-normal because it mixes four groups with
+different means. Within each forest type the departure is much smaller (p-values
+around or above 0.05). Check assumptions on residuals or within groups, not on
+the pooled variable.
+</details>
+
+**2.** Do logged and plantation plots differ in tree density? Choose and run the
+test.
+
+<details><summary>Answer</summary>
+
+```{r ex2}
+ex <- droplevels(subset(d, forest_type %in% c("Logged", "Plantation")))
+t.test(tree_density_ha ~ forest_type, data = ex)
+```
+Two independent groups and a roughly normal response: Welch's t-test.
+</details>
+
+**3.** Does soil pH differ among forest types? Which pairs differ?
+
+<details><summary>Answer</summary>
+
+```{r ex3}
+f <- aov(soil_pH ~ forest_type, data = d); summary(f); TukeyHSD(f)$forest_type[, c("diff", "p adj")]
+```
+</details>
+
+**4.** Is hornbill presence related to fire history? Which test, and why?
+
+<details><summary>Answer</summary>
+
+```{r ex4}
+t4 <- table(d$hornbill_present, d$fire_history); t4; chisq.test(t4); fisher.test(t4)$p.value
+```
+Two categorical variables -> chi-square test of independence. Neither the
+chi-square test nor Fisher's exact test (preferred for a 2 x 2 table) is
+significant at 0.05: these data give no clear evidence that hornbill presence
+depends on fire history.
+</details>
+
+**5.** Correlate elevation with species richness using Pearson and Spearman.
+Which is more appropriate, and what would be better than either?
+
+<details><summary>Answer</summary>
+
+```{r ex5}
+c(pearson = cor(d$elevation_m, d$species_richness),
+  spearman = cor(d$elevation_m, d$species_richness, method = "spearman"))
+```
+Both show a moderate negative correlation. Richness is a count, so Spearman is
+the safer correlation. Better still is the Poisson GLM of Section 6: it respects
+the count nature of the data, gives the size of the decline per 100 m, and
+separates the elevation effect from the large differences among forest types.
+</details>
+
+**6.** Model seedling count as a function of canopy cover *and* forest type.
+Poisson or negative binomial?
+
+<details><summary>Answer</summary>
+
+```{r ex6}
+p6 <- glm(seedling_count ~ canopy_cover_pct + forest_type, family = poisson, data = d)
+sum(residuals(p6, type = "pearson")^2) / df.residual(p6)
+round(coef(summary(MASS::glm.nb(seedling_count ~ canopy_cover_pct + forest_type, data = d))), 3)
+```
+The dispersion is far above 1, so use the negative binomial.
+</details>
+
+**7.** Run a PCA on the six environmental variables, add PC1 to the data and use
+it to predict species richness. How do you interpret the slope?
+
+<details><summary>Answer</summary>
+
+```{r ex7}
+d$PC1 <- pca$x[, 1]
+round(coef(summary(glm(species_richness ~ PC1 + elevation_m, family = poisson, data = d))), 4)
+```
+PC1 is the intactness gradient (check the sign of the loadings to see which
+direction is "more intact"); the slope is the change in log richness per unit of
+that gradient at constant elevation.
+</details>
+
+---
+
+*Module and app: Hasna Afifah with Claude assistance. Example data are
+simulated for teaching.*

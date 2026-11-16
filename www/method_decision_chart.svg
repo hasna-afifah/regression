@@ -1,0 +1,173 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 950' width='1400' height='950' font-family='Helvetica Neue, Helvetica, Arial, sans-serif' role='img' aria-label='Decision chart for choosing a statistical method' xmlns:c2pa="http://c2pa.org/manifest">
+<rect width='1400' height='950' fill='#ffffff'/>
+<text x='24.0' y='40.0' font-size='25' fill='#1f2d2a' font-weight='700' text-anchor='start' >Which statistical method should I use?</text>
+<text x='24.0' y='64.0' font-size='14' fill='#52635f' font-weight='400' text-anchor='start' >Start from your question, follow the column down, and pick the row that matches your data.</text>
+<rect x='535.0' y='84.0' width='330.0' height='42.0' rx='21' fill='#1f2d2a' stroke='none' stroke-width='1.2' />
+<text x='700.0' y='111.0' font-size='16' fill='#ffffff' font-weight='700' text-anchor='middle' >What is your question?</text>
+<path d='M700.0,126 V138 H187.0 V159' fill='none' stroke='#7c8b87' stroke-width='1.6'/>
+<path d='M181.0,157 L187.0,166 L193.0,157 Z' fill='#7c8b87'/>
+<path d='M700.0,126 V138 H529.0 V159' fill='none' stroke='#7c8b87' stroke-width='1.6'/>
+<path d='M523.0,157 L529.0,166 L535.0,157 Z' fill='#7c8b87'/>
+<path d='M700.0,126 V138 H871.0 V159' fill='none' stroke='#7c8b87' stroke-width='1.6'/>
+<path d='M865.0,157 L871.0,166 L877.0,157 Z' fill='#7c8b87'/>
+<path d='M700.0,126 V138 H1213.0 V159' fill='none' stroke='#7c8b87' stroke-width='1.6'/>
+<path d='M1207.0,157 L1213.0,166 L1219.0,157 Z' fill='#7c8b87'/>
+<rect x='24.0' y='166.0' width='326.0' height='540.0' rx='12' fill='#e8f3ea' stroke='#2c7a3e' stroke-width='1.4' />
+<path d='M24.0,178 a12,12 0 0 1 12,-12 h302.0 a12,12 0 0 1 12,12 v36 h-326.0 z' fill='#2c7a3e'/>
+<text x='187.0' y='197.0' font-size='18' fill='#ffffff' font-weight='700' text-anchor='middle' >Compare groups</text>
+<text x='187.0' y='234.0' font-size='12.6' fill='#1f2d2a' font-weight='600' text-anchor='middle' >Does a numeric variable differ between groups?</text>
+<text x='187.0' y='253.0' font-size='11.6' fill='#52635f' font-weight='400' text-anchor='middle' font-style='italic'>e.g. Is biomass higher in primary than in logged forest?</text>
+<line x1='36.0' y1='270.0' x2='338.0' y2='270.0' stroke='#2c7a3e' stroke-opacity='0.35'/>
+<text x='109.5' y='294.0' font-size='10.5' fill='#2c7a3e' font-weight='700' text-anchor='middle' letter-spacing='0.6'>NORMAL RESIDUALS</text>
+<text x='264.5' y='294.0' font-size='10.5' fill='#52635f' font-weight='700' text-anchor='middle' letter-spacing='0.6'>NOT NORMAL</text>
+<text x='36.0' y='321.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >1 group vs a reference value</text>
+<rect x='36.0' y='329.0' width='147.0' height='44.0' rx='7' fill='#2c7a3e' stroke='none' stroke-width='1.2' />
+<text x='109.5' y='355.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >One-sample t-test</text>
+<rect x='191.0' y='329.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2c7a3e' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='264.5' y='348.5' font-size='13' fill='#2c7a3e' font-weight='700' text-anchor='middle' >Wilcoxon signed-rank</text>
+<text x='264.5' y='363.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >one sample</text>
+<text x='36.0' y='399.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >2 independent groups</text>
+<rect x='36.0' y='407.0' width='147.0' height='44.0' rx='7' fill='#2c7a3e' stroke='none' stroke-width='1.2' />
+<text x='109.5' y='426.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Welch t-test</text>
+<text x='109.5' y='441.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >two-sample</text>
+<rect x='191.0' y='407.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2c7a3e' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='264.5' y='426.5' font-size='13' fill='#2c7a3e' font-weight='700' text-anchor='middle' >Mann-Whitney U</text>
+<text x='264.5' y='441.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >rank-sum test</text>
+<text x='36.0' y='477.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >2 paired measurements (same plots twice)</text>
+<rect x='36.0' y='485.0' width='147.0' height='44.0' rx='7' fill='#2c7a3e' stroke='none' stroke-width='1.2' />
+<text x='109.5' y='511.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Paired t-test</text>
+<rect x='191.0' y='485.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2c7a3e' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='264.5' y='504.5' font-size='13' fill='#2c7a3e' font-weight='700' text-anchor='middle' >Wilcoxon signed-rank</text>
+<text x='264.5' y='519.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >paired</text>
+<text x='36.0' y='555.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >3+ groups, one factor</text>
+<rect x='36.0' y='563.0' width='147.0' height='44.0' rx='7' fill='#2c7a3e' stroke='none' stroke-width='1.2' />
+<text x='109.5' y='582.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >One-way ANOVA</text>
+<text x='109.5' y='597.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >+ Tukey HSD post-hoc</text>
+<rect x='191.0' y='563.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2c7a3e' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='264.5' y='582.5' font-size='13' fill='#2c7a3e' font-weight='700' text-anchor='middle' >Kruskal-Wallis</text>
+<text x='264.5' y='597.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >+ pairwise Wilcoxon</text>
+<text x='36.0' y='633.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >2 factors (e.g. forest type x fire)</text>
+<rect x='36.0' y='641.0' width='147.0' height='44.0' rx='7' fill='#2c7a3e' stroke='none' stroke-width='1.2' />
+<text x='109.5' y='660.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Two-way ANOVA</text>
+<text x='109.5' y='675.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >main effects + interaction</text>
+<rect x='191.0' y='641.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2c7a3e' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='264.5' y='660.5' font-size='13' fill='#2c7a3e' font-weight='700' text-anchor='middle' >Transform, or GLM</text>
+<text x='264.5' y='675.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >with both factors</text>
+<rect x='366.0' y='166.0' width='326.0' height='540.0' rx='12' fill='#e6f0f7' stroke='#2471a3' stroke-width='1.4' />
+<path d='M366.0,178 a12,12 0 0 1 12,-12 h302.0 a12,12 0 0 1 12,12 v36 h-326.0 z' fill='#2471a3'/>
+<text x='529.0' y='197.0' font-size='18' fill='#ffffff' font-weight='700' text-anchor='middle' >Correlation</text>
+<text x='529.0' y='234.0' font-size='12.6' fill='#1f2d2a' font-weight='600' text-anchor='middle' >Are two variables related?</text>
+<text x='529.0' y='253.0' font-size='11.6' fill='#52635f' font-weight='400' text-anchor='middle' font-style='italic'>e.g. Is soil carbon related to soil nitrogen?</text>
+<line x1='378.0' y1='270.0' x2='680.0' y2='270.0' stroke='#2471a3' stroke-opacity='0.35'/>
+<text x='451.5' y='294.0' font-size='10.5' fill='#2471a3' font-weight='700' text-anchor='middle' letter-spacing='0.6'>ASSUMPTIONS MET</text>
+<text x='606.5' y='294.0' font-size='10.5' fill='#52635f' font-weight='700' text-anchor='middle' letter-spacing='0.6'>NOT MET</text>
+<text x='378.0' y='321.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Both numeric</text>
+<rect x='378.0' y='329.0' width='147.0' height='44.0' rx='7' fill='#2471a3' stroke='none' stroke-width='1.2' />
+<text x='451.5' y='348.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Pearson r</text>
+<text x='451.5' y='363.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >linear, both ~normal</text>
+<rect x='533.0' y='329.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2471a3' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='606.5' y='348.5' font-size='13' fill='#2471a3' font-weight='700' text-anchor='middle' >Spearman rho</text>
+<text x='606.5' y='363.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >monotonic, skewed, outliers</text>
+<text x='378.0' y='399.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Both categorical (counts in a table)</text>
+<rect x='378.0' y='407.0' width='147.0' height='44.0' rx='7' fill='#2471a3' stroke='none' stroke-width='1.2' />
+<text x='451.5' y='426.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Chi-square test</text>
+<text x='451.5' y='441.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >expected counts &gt;= 5</text>
+<rect x='533.0' y='407.0' width='147.0' height='44.0' rx='7' fill='#ffffff' stroke='#2471a3' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='606.5' y='426.5' font-size='13' fill='#2471a3' font-weight='700' text-anchor='middle' >Fisher&#x27;s exact test</text>
+<text x='606.5' y='441.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >small expected counts</text>
+<text x='378.0' y='477.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >One categorical vs expected ratio</text>
+<rect x='378.0' y='485.0' width='302.0' height='44.0' rx='7' fill='#2471a3' stroke='none' stroke-width='1.2' />
+<text x='529.0' y='504.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Chi-square</text>
+<text x='529.0' y='519.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >goodness of fit</text>
+<text x='378.0' y='555.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >One numeric + one categorical</text>
+<rect x='378.0' y='563.0' width='302.0' height='44.0' rx='7' fill='#ffffff' stroke='#9aa7a3' stroke-width='1.2' />
+<text x='529.0' y='582.5' font-size='13' fill='#1f2d2a' font-weight='700' text-anchor='middle' >→ Compare groups</text>
+<text x='529.0' y='597.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >see the green column</text>
+<text x='378.0' y='633.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Want to predict Y from X?</text>
+<rect x='378.0' y='641.0' width='302.0' height='44.0' rx='7' fill='#ffffff' stroke='#9aa7a3' stroke-width='1.2' />
+<text x='529.0' y='660.5' font-size='13' fill='#1f2d2a' font-weight='700' text-anchor='middle' >→ Regression</text>
+<text x='529.0' y='675.5' font-size='10.8' fill='#4a5a56' font-weight='400' text-anchor='middle' >see the orange column</text>
+<rect x='708.0' y='166.0' width='326.0' height='540.0' rx='12' fill='#fbeee4' stroke='#d35400' stroke-width='1.4' />
+<path d='M708.0,178 a12,12 0 0 1 12,-12 h302.0 a12,12 0 0 1 12,12 v36 h-326.0 z' fill='#d35400'/>
+<text x='871.0' y='197.0' font-size='18' fill='#ffffff' font-weight='700' text-anchor='middle' >Predict / explain</text>
+<text x='871.0' y='234.0' font-size='12.6' fill='#1f2d2a' font-weight='600' text-anchor='middle' >How does a response Y change with predictors X?</text>
+<text x='871.0' y='253.0' font-size='11.6' fill='#52635f' font-weight='400' text-anchor='middle' font-style='italic'>e.g. Does species richness decline with elevation?</text>
+<line x1='720.0' y1='270.0' x2='1022.0' y2='270.0' stroke='#d35400' stroke-opacity='0.35'/>
+<text x='720.0' y='294.0' font-size='11.6' fill='#d35400' font-weight='700' text-anchor='start' >Choose the model by the type of RESPONSE:</text>
+<text x='720.0' y='321.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Continuous, normal residuals</text>
+<rect x='720.0' y='329.0' width='302.0' height='44.0' rx='7' fill='#d35400' stroke='none' stroke-width='1.2' />
+<text x='871.0' y='348.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Linear model (LM)</text>
+<text x='871.0' y='363.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >simple, multiple, polynomial</text>
+<text x='720.0' y='399.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Counts (stems, species richness)</text>
+<rect x='720.0' y='407.0' width='302.0' height='44.0' rx='7' fill='#d35400' stroke='none' stroke-width='1.2' />
+<text x='871.0' y='426.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Poisson GLM</text>
+<text x='871.0' y='441.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >overdispersed → negative binomial</text>
+<text x='720.0' y='477.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Presence / absence (0 / 1)</text>
+<rect x='720.0' y='485.0' width='302.0' height='44.0' rx='7' fill='#d35400' stroke='none' stroke-width='1.2' />
+<text x='871.0' y='504.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Binomial GLM</text>
+<text x='871.0' y='519.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >logistic regression</text>
+<text x='720.0' y='555.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Positive &amp; right-skewed (biomass)</text>
+<rect x='720.0' y='563.0' width='302.0' height='44.0' rx='7' fill='#d35400' stroke='none' stroke-width='1.2' />
+<text x='871.0' y='582.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Gamma GLM (log link)</text>
+<text x='871.0' y='597.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >or log-transform + LM</text>
+<text x='720.0' y='633.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Proportion / % cover</text>
+<rect x='720.0' y='641.0' width='302.0' height='44.0' rx='7' fill='#d35400' stroke='none' stroke-width='1.2' />
+<text x='871.0' y='660.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Logit-transform + LM</text>
+<text x='871.0' y='675.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >binomial GLM for k-of-n counts</text>
+<rect x='1050.0' y='166.0' width='326.0' height='540.0' rx='12' fill='#f1e8f5' stroke='#7d3c98' stroke-width='1.4' />
+<path d='M1050.0,178 a12,12 0 0 1 12,-12 h302.0 a12,12 0 0 1 12,12 v36 h-326.0 z' fill='#7d3c98'/>
+<text x='1213.0' y='197.0' font-size='18' fill='#ffffff' font-weight='700' text-anchor='middle' >Many variables</text>
+<text x='1213.0' y='234.0' font-size='12.6' fill='#1f2d2a' font-weight='600' text-anchor='middle' >What are the main patterns in many variables?</text>
+<text x='1213.0' y='253.0' font-size='11.6' fill='#52635f' font-weight='400' text-anchor='middle' font-style='italic'>e.g. How do plots differ in species composition?</text>
+<line x1='1062.0' y1='270.0' x2='1364.0' y2='270.0' stroke='#7d3c98' stroke-opacity='0.35'/>
+<text x='1062.0' y='294.0' font-size='11.6' fill='#7d3c98' font-weight='700' text-anchor='start' >Choose by the kind of DATA TABLE:</text>
+<text x='1062.0' y='321.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Many continuous variables (soil, structure)</text>
+<rect x='1062.0' y='329.0' width='302.0' height='44.0' rx='7' fill='#7d3c98' stroke='none' stroke-width='1.2' />
+<text x='1213.0' y='348.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >PCA</text>
+<text x='1213.0' y='363.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >reduce to a few axes</text>
+<text x='1062.0' y='399.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Plots x species abundance table</text>
+<rect x='1062.0' y='407.0' width='302.0' height='44.0' rx='7' fill='#7d3c98' stroke='none' stroke-width='1.2' />
+<text x='1213.0' y='426.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >NMDS</text>
+<text x='1213.0' y='441.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >Bray-Curtis dissimilarity</text>
+<text x='1062.0' y='477.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Does composition differ between groups?</text>
+<rect x='1062.0' y='485.0' width='302.0' height='44.0' rx='7' fill='#7d3c98' stroke='none' stroke-width='1.2' />
+<text x='1213.0' y='504.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >PERMANOVA</text>
+<text x='1213.0' y='519.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >test on the dissimilarities</text>
+<text x='1062.0' y='555.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Which plots are most alike?</text>
+<rect x='1062.0' y='563.0' width='302.0' height='44.0' rx='7' fill='#7d3c98' stroke='none' stroke-width='1.2' />
+<text x='1213.0' y='582.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >Cluster analysis</text>
+<text x='1213.0' y='597.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >dendrogram</text>
+<text x='1062.0' y='633.0' font-size='12' fill='#1f2d2a' font-weight='600' text-anchor='start' >Too many correlated predictors?</text>
+<rect x='1062.0' y='641.0' width='302.0' height='44.0' rx='7' fill='#7d3c98' stroke='none' stroke-width='1.2' />
+<text x='1213.0' y='660.5' font-size='13' fill='#ffffff' font-weight='700' text-anchor='middle' >PCA scores → Regression</text>
+<text x='1213.0' y='675.5' font-size='10.8' fill='#ffffff' font-weight='400' text-anchor='middle' >use PC1, PC2 as predictors</text>
+<rect x='24.0' y='728.0' width='1352.0' height='118.0' rx='12' fill='#f4f6f5' stroke='#c9d2cf' stroke-width='1.2' />
+<text x='42.0' y='756.0' font-size='15' fill='#1f2d2a' font-weight='700' text-anchor='start' >Before trusting a parametric test or linear model, check its assumptions</text>
+<rect x='42.0' y='770.0' width='303.5' height='62.0' rx='8' fill='#ffffff' stroke='#c9d2cf' stroke-width='1.2' />
+<text x='56.0' y='791.0' font-size='12.8' fill='#2c7a3e' font-weight='700' text-anchor='start' >1  Look</text>
+<text x='56.0' y='808.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Histogram and Q-Q plot</text>
+<text x='56.0' y='823.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >of the data / residuals</text>
+<path d='M351.5,801 h16' stroke='#7c8b87' stroke-width='1.6'/><path d='M365.5,796 l8,5 l-8,5 z' fill='#7c8b87'/>
+<rect x='379.5' y='770.0' width='303.5' height='62.0' rx='8' fill='#ffffff' stroke='#c9d2cf' stroke-width='1.2' />
+<text x='393.5' y='791.0' font-size='12.8' fill='#2c7a3e' font-weight='700' text-anchor='start' >2  Test</text>
+<text x='393.5' y='808.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Shapiro-Wilk (normality)</text>
+<text x='393.5' y='823.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Levene (equal variances)</text>
+<path d='M689.0,801 h16' stroke='#7c8b87' stroke-width='1.6'/><path d='M703.0,796 l8,5 l-8,5 z' fill='#7c8b87'/>
+<rect x='717.0' y='770.0' width='303.5' height='62.0' rx='8' fill='#ffffff' stroke='#c9d2cf' stroke-width='1.2' />
+<text x='731.0' y='791.0' font-size='12.8' fill='#2c7a3e' font-weight='700' text-anchor='start' >3  If violated: transform</text>
+<text x='731.0' y='808.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >log, square root, logit,</text>
+<text x='731.0' y='823.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Box-Cox, then re-check</text>
+<path d='M1026.5,801 h16' stroke='#7c8b87' stroke-width='1.6'/><path d='M1040.5,796 l8,5 l-8,5 z' fill='#7c8b87'/>
+<rect x='1054.5' y='770.0' width='303.5' height='62.0' rx='8' fill='#ffffff' stroke='#c9d2cf' stroke-width='1.2' />
+<text x='1068.5' y='791.0' font-size='12.8' fill='#2c7a3e' font-weight='700' text-anchor='start' >4  Still violated?</text>
+<text x='1068.5' y='808.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Use the non-parametric test</text>
+<text x='1068.5' y='823.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >(dashed boxes) or a GLM</text>
+<rect x='24.0' y='858.0' width='34.0' height='20.0' rx='5' fill='#52635f' stroke='none' stroke-width='1.2' />
+<text x='66.0' y='873.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Solid box = parametric method / model (assumes a distribution)</text>
+<rect x='494.0' y='858.0' width='34.0' height='20.0' rx='5' fill='#ffffff' stroke='#52635f' stroke-width='1.6' stroke-dasharray='5 3'/>
+<text x='536.0' y='873.0' font-size='12' fill='#33423f' font-weight='400' text-anchor='start' >Dashed box = non-parametric (rank-based) or exact alternative</text>
+<text x='1376.0' y='873.0' font-size='11.5' fill='#7c8b87' font-weight='400' text-anchor='end' >All methods are available in the Ecological Statistics Toolkit (R Shiny)</text>
+<rect x='24.0' y='894.0' width='1352.0' height='40.0' rx='10' fill='#fbeee4' stroke='#d35400' stroke-width='1.2' />
+<text x='42.0' y='919.0' font-size='13' fill='#d35400' font-weight='700' text-anchor='start' >Grouped or repeated data?</text>
+<text x='232.0' y='919.0' font-size='12.4' fill='#33423f' font-weight='400' text-anchor='start' >Plots within sites or blocks, or the same plots measured again, are not independent: add the grouping as a RANDOM FACTOR  →  mixed model (LMM / GLMM).</text>
+<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpiZTI4ZGZlYS1jMmVlLTRjODktYWUyMi01YjE0MzNjYWIyYjQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaJan+6o/yUhLdvetIovMsRMAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpjNTRiZTA2NS1iM2RiLTRiZTktYjJmMS0wMTRiYWQxODIxNTdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoCthQcYRY07Xt3cuO0KoHogAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggIXNti6SXOvBfjcTr1SQ6JzC8ukzXIpW1y+W7SUHeGISkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaNTERVCBBd9+DjUD6lh6GXsAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIEDuXnr1MRIDuMltLOCMZItIF968U77oslPbiFdMK7l8ZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GVOOZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmJlMjhkZmVhLWMyZWUtNGM4OS1hZTIyLTViMTQzM2NhYjJiNC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmNjYTJhNzU4LWU1ZDUtNDE0Yy1hNWY1LTYwZWU3NjVhNDRkMXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCAhc22LpJc68F+NxOvVJDonMLy6TNcilbXL5btJQd4YhKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggmJdOLyBCQZtxrwAK/j6hLIPWPJEreY/E4Jxx6FVOUd6iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggTPKjzHsBRhg+fiktgFaCan7WiRDYr190I4CvqcF7IaV0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQFy2E/ZAJw7NjVwaNjg0z+ESK1fAWUpYtd1Sn7qMpYOJWGUR+z+/pekEFYHSgEMSStPY6SuWxVH5xJmdoLAcvP0=</c2pa:manifest></metadata></svg>
