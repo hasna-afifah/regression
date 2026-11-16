@@ -64,7 +64,7 @@ shiny::runApp("path/to/regression")
 Then go to **1. Data** and click **Load example data** to try everything
 without your own file.
 
-### Publish it online
+### Online
 
 See **[DEPLOY.md](DEPLOY.md)** for a step-by-step guide to deploying (or
 updating) the app on shinyapps.io.
