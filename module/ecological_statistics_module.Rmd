@@ -539,6 +539,62 @@ Each additional m2/ha of basal area multiplies the *odds* of hornbill presence
 by `r round(exp(coef(m7)[2]), 2)`. The predicted probability reaches 50% at a
 basal area of about `r round(-coef(m7)[1] / coef(m7)[2])` m2/ha.
 
+### How good is the model? ROC curve and AUC
+
+A significant slope says basal area matters; it does not say how well the
+model *separates* plots with and without hornbills. The **ROC curve** answers
+that. For every possible probability threshold it plots the share of
+presences correctly predicted (sensitivity) against the share of absences
+wrongly predicted as presences (1 - specificity). The **area under the curve
+(AUC)** summarises it in one number.
+
+```{r roc, fig.width=5, fig.height=5}
+y <- d$hornbill_present
+p <- fitted(m7)                                   # predicted probabilities
+
+# AUC: probability that a random presence gets a higher prediction than a random absence
+n1 <- sum(y == 1); n0 <- sum(y == 0)
+auc <- (sum(rank(p)[y == 1]) - n1 * (n1 + 1) / 2) / (n1 * n0)
+auc
+
+# ROC curve: sensitivity and false positive rate at every threshold
+thr  <- sort(unique(p), decreasing = TRUE)
+sens <- sapply(thr, function(t) mean(p[y == 1] >= t))
+fpr  <- sapply(thr, function(t) mean(p[y == 0] >= t))
+plot(c(0, fpr), c(0, sens), type = "s", lwd = 2, col = green, asp = 1,
+     xlab = "False positive rate (1 - specificity)", ylab = "True positive rate (sensitivity)",
+     main = sprintf("ROC curve, AUC = %.2f", auc))
+abline(0, 1, lty = 2, col = "grey50")
+
+# Threshold that maximises TSS (= sensitivity + specificity - 1)
+best <- which.max(sens - fpr)
+c(threshold = thr[best], sensitivity = sens[best],
+  specificity = 1 - fpr[best], TSS = sens[best] - fpr[best])
+```
+
+**Reading it.** The dashed diagonal is a model no better than a coin toss
+(AUC = 0.5); the closer the curve hugs the top-left corner, the better.
+Here AUC = `r round(auc, 2)`: picking one plot with and one without hornbills at
+random, the model ranks the occupied plot higher `r round(100 * auc)`% of the time.
+
+| AUC | Discrimination (Hosmer & Lemeshow) |
+|---|---|
+| 0.5 | none (chance) |
+| 0.7 - 0.8 | acceptable |
+| 0.8 - 0.9 | excellent |
+| > 0.9 | outstanding |
+
+Three cautions: (1) AUC computed on the data used to fit the model is
+optimistic - **cross-validate** to see how it does on new plots; (2) AUC
+measures *ranking*, not whether the probabilities themselves are right; (3) a
+0/1 map needs a threshold - 0.5 is arbitrary, and ecologists often choose the
+one that maximises **TSS**, which is also less sensitive to how common the
+species is than accuracy or kappa.
+
+> **In the app:** fit GLM → Binomial, then open **6. Regression → ROC / AUC**
+> for the curve, AUC with 95% CI, 5-fold cross-validated AUC, and a confusion
+> matrix at any threshold (with a one-click optimal threshold).
+
 ## Skewed positive response: transform or Gamma GLM
 
 ```{r gamma}
@@ -864,4 +920,5 @@ that gradient at constant elevation.
 
 ---
 
-*Module and app: Hasna Afifah with Claude assistance. Example data are randomly generated only for teaching purposes.*
+*Module and app: Hasna Afifah with Claude assistance. Example data are
+simulated for teaching.*

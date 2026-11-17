@@ -258,3 +258,86 @@ fmt_peq <- function(p) {
   if (length(p) == 0 || is.na(p)) return("p = NA")
   if (p < 0.001) "p < 0.001" else paste("p =", formatC(p, digits = 3, format = "f"))
 }
+
+# --- ROC / AUC for binary (0/1) models ---------------------------------------
+# All computed directly (no extra package needed).
+
+# ROC curve points: one row per distinct threshold, from strictest to loosest
+roc_curve <- function(y, p) {
+  P <- sum(y == 1); N <- sum(y == 0)
+  o  <- order(p, decreasing = TRUE)
+  ps <- p[o]; ys <- y[o]
+  tp <- cumsum(ys == 1); fp <- cumsum(ys == 0)
+  last <- c(diff(ps) != 0, TRUE)          # last row of each tied block
+  rbind(data.frame(threshold = Inf, tpr = 0, fpr = 0),
+        data.frame(threshold = ps[last], tpr = tp[last] / P, fpr = fp[last] / N))
+}
+
+# AUC = probability that a random presence gets a higher prediction than a
+# random absence (Mann-Whitney formulation; ties count one half)
+auc_value <- function(y, p) {
+  r  <- rank(p)
+  n1 <- sum(y == 1); n0 <- sum(y == 0)
+  (sum(r[y == 1]) - n1 * (n1 + 1) / 2) / (n1 * n0)
+}
+
+# Standard error of AUC (Hanley & McNeil 1982) and a 95% confidence interval
+auc_ci <- function(auc, n1, n0, level = 0.95) {
+  q1 <- auc / (2 - auc); q2 <- 2 * auc^2 / (1 + auc)
+  se <- sqrt((auc * (1 - auc) + (n1 - 1) * (q1 - auc^2) + (n0 - 1) * (q2 - auc^2)) / (n1 * n0))
+  z  <- qnorm(1 - (1 - level) / 2)
+  c(se = se, lower = max(0, auc - z * se), upper = min(1, auc + z * se))
+}
+
+# Threshold that maximises sensitivity + specificity - 1 (Youden's J = TSS)
+roc_optimal <- function(roc) {
+  r <- roc[is.finite(roc$threshold), ]
+  r[which.max(r$tpr - r$fpr), ]
+}
+
+# Confusion-matrix statistics at a probability threshold
+class_stats <- function(y, p, thr) {
+  pred <- as.integer(p >= thr)
+  TP <- sum(pred == 1 & y == 1); FP <- sum(pred == 1 & y == 0)
+  TN <- sum(pred == 0 & y == 0); FN <- sum(pred == 0 & y == 1)
+  n  <- TP + FP + TN + FN
+  sens <- TP / (TP + FN); spec <- TN / (TN + FP)
+  acc  <- (TP + TN) / n
+  pe   <- ((TP + FP) * (TP + FN) + (FN + TN) * (FP + TN)) / n^2
+  list(TP = TP, FP = FP, TN = TN, FN = FN,
+       sensitivity = sens, specificity = spec, accuracy = acc,
+       TSS = sens + spec - 1,
+       kappa = if (pe < 1) (acc - pe) / (1 - pe) else NA_real_,
+       PPV = if (TP + FP > 0) TP / (TP + FP) else NA_real_,
+       NPV = if (TN + FN > 0) TN / (TN + FN) else NA_real_)
+}
+
+# k-fold cross-validated AUC for an ordinary binomial GLM (folds stratified so
+# every fold keeps both presences and absences). Returns NA if not possible.
+cv_auc <- function(model, data, resp, k = 5, seed = 42) {
+  y <- data[[resp]]
+  if (min(table(factor(y, levels = c(0, 1)))) < k) return(NA_real_)
+  set.seed(seed)
+  folds <- integer(length(y))
+  for (cl in c(0, 1)) {
+    idx <- which(y == cl)
+    folds[idx] <- sample(rep(seq_len(k), length.out = length(idx)))
+  }
+  p <- rep(NA_real_, length(y))
+  for (i in seq_len(k)) {
+    tr  <- folds != i
+    fit <- tryCatch(suppressWarnings(
+      glm(formula(model), data = data[tr, , drop = FALSE], family = family(model))),
+      error = function(e) NULL)
+    if (is.null(fit)) return(NA_real_)
+    p[!tr] <- tryCatch(predict(fit, newdata = data[!tr, , drop = FALSE], type = "response"),
+                       error = function(e) NA_real_)
+  }
+  if (anyNA(p)) NA_real_ else auc_value(y, p)
+}
+
+auc_label <- function(a) {
+  if (is.na(a)) "NA" else if (a < 0.6) "poor (barely better than chance)" else
+    if (a < 0.7) "weak" else if (a < 0.8) "acceptable" else
+      if (a < 0.9) "excellent" else "outstanding"
+}

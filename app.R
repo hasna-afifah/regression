@@ -9,6 +9,7 @@
 #   4. Compare     - t-test family, ANOVA, non-parametric alternatives
 #   5. Correlation - Pearson / Spearman / Kendall, chi-square, Fisher
 #   6. Regression  - LM, polynomial, GLM (Poisson, neg. binomial, binomial...),
+#                    ROC / AUC for logistic models,
 #                    optional random factors (mixed models, lme4)
 #   7. Multivariate- PCA, NMDS + PERMANOVA, cluster analysis
 #
@@ -71,10 +72,11 @@ ui <- page_navbar(
           tags$li(tags$strong("Transform"), " - check normality (Shapiro-Wilk, Q-Q plot) and transform skewed variables (log, square root, logit, Box-Cox, Yeo-Johnson...)."),
           tags$li(tags$strong("Compare groups"), " - t-test family, ANOVA with post-hoc tests, and non-parametric alternatives."),
           tags$li(tags$strong("Correlation"), " - Pearson vs Spearman vs Kendall; chi-square and Fisher's exact test for categorical variables."),
-          tags$li(tags$strong("Regression"), " - four sub-tabs that keep the original workflow: ",
+          tags$li(tags$strong("Regression"), " - sub-tabs that keep the original workflow: ",
                   tags$strong("Model Setup"), " (choose model type, response, predictors, random factors), ",
                   tags$strong("Results"), " (coefficients, R-squared, AIC, VIF), ",
                   tags$strong("Diagnostics"), " (Q-Q, Shapiro-Wilk, residual plots), ",
+                  tags$strong("ROC / AUC"), " (appears only for logistic regression), ",
                   tags$strong("Visualise"), " (regression line with confidence bands)."),
           tags$li(tags$strong("Multivariate"), " - PCA, NMDS with PERMANOVA, cluster analysis.")
         ),
@@ -151,7 +153,8 @@ ui <- page_navbar(
         ),
 
         tags$h5("6. Fit a regression model (Regression)"),
-        tags$p("Four sub-tabs walk you through the modelling workflow:"),
+        tags$p("Four sub-tabs walk you through the modelling workflow ",
+               "(a fifth, ROC / AUC, appears when you fit a logistic regression):"),
         tags$ul(
           tags$li(tags$strong("Model setup"), " — pick response (Y) and predictor(s) (X); ",
                   "choose Linear, Polynomial, or GLM (Gaussian, Poisson, Negative binomial, ",
@@ -163,6 +166,9 @@ ui <- page_navbar(
                   tags$strong("VIF"), " for collinearity; variance components and ICC for mixed models."),
           tags$li(tags$strong("Diagnostics"), " — Q-Q plot, Shapiro-Wilk test, Residuals vs Fitted, ",
                   "Scale-Location. Warnings appear when an assumption is violated."),
+          tags$li(tags$strong("ROC / AUC"), " — logistic regression (GLM → Binomial) only: ROC curve, ",
+                  "AUC with 95% CI, 5-fold cross-validated AUC, and a confusion matrix with sensitivity, ",
+                  "specificity, TSS and kappa at any threshold (one click sets the optimal threshold)."),
           tags$li(tags$strong("Visualise"), " — regression line with confidence bands (80%–99%); ",
                   "download as PNG.")
         ),
@@ -171,7 +177,8 @@ ui <- page_navbar(
           tags$strong("Regression tips"), tags$br(),
           tags$ul(class = "mb-0 mt-1",
             tags$li("For ", tags$strong("logistic regression"), ": make sure your response is 0/1, ",
-                    "choose GLM → Binomial."),
+                    "choose GLM → Binomial, then check the ", tags$strong("ROC / AUC"),
+                    " sub-tab (AUC > 0.7 acceptable, > 0.8 excellent)."),
             tags$li("For ", tags$strong("Poisson regression"), " (count data): ",
                     "choose GLM → Poisson. If the dispersion statistic is well above 1, switch to Negative binomial."),
             tags$li("For ", tags$strong("Gaussian response curves"),

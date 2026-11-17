@@ -19,7 +19,7 @@ with a plain-language interpretation of every result.
 | **3. Transform** | Shapiro-Wilk + Q-Q plot before/after; log, ln(x+1), square root, cube root, reciprocal, square, arcsine-sqrt, logit, Box-Cox, Yeo-Johnson, rank-based inverse normal; ranking of all transformations; add the transformed column to the data |
 | **4. Compare groups** | One-sample, two-sample (Welch/Student) and paired t-tests; one-way, Welch and two-way ANOVA with Tukey post-hoc; Wilcoxon, Mann-Whitney, Kruskal-Wallis; assumption checks and effect sizes |
 | **5. Correlation** | Pearson vs Spearman vs Kendall side by side; correlation matrix with significance; chi-square tests of independence and goodness of fit, Fisher's exact test, Cramér's V |
-| **6. Regression** | The original workflow as four sub-tabs — **Model setup**, **Results**, **Diagnostics**, **Visualise** — for simple, multiple and polynomial linear models and GLMs (Gaussian, Poisson, negative binomial, binomial, Gamma, inverse Gaussian), now with optional **random factors** (mixed models: LMM / GLMM), dispersion check, Type II tests and VIF |
+| **6. Regression** | The original workflow as sub-tabs — **Model setup**, **Results**, **Diagnostics**, **Visualise**, plus **ROC / AUC** when the model is logistic — for simple, multiple and polynomial linear models and GLMs (Gaussian, Poisson, negative binomial, binomial, Gamma, inverse Gaussian), now with optional **random factors** (mixed models: LMM / GLMM), dispersion check, Type II tests and VIF |
 | **7. Multivariate** | PCA (biplot, scree, loadings, export scores); NMDS with PERMANOVA and dispersion test; hierarchical cluster analysis |
 
 Every analysis shows the R output, a sentence "in words", and a warning with a
@@ -183,19 +183,21 @@ The app auto-detects sheet names for Excel files. You can also click
 
 ### 6. Fit a regression model (Regression)
 
-Four sub-tabs walk you through the modelling workflow:
+Four sub-tabs walk you through the modelling workflow (a fifth, **ROC / AUC**, appears when you fit a logistic regression):
 
 | Sub-tab | What you do |
 |---------|-------------|
 | **Model setup** | Pick response (Y) and predictor(s) (X); choose Linear, Polynomial, or GLM (Gaussian, Poisson, Negative binomial, Binomial, Gamma, Inverse Gaussian); optionally **scale** predictors, include **interactions**, or add **random factors** (site, block, year → mixed model). |
 | **Results** | Coefficient table (estimates, SE, t/z, p, CI); fit statistics (R², adj. R², F-test, AIC, deviance, marginal/conditional R²); **VIF** for collinearity; variance components and ICC for mixed models. |
 | **Diagnostics** | Q-Q plot, Shapiro-Wilk test, Residuals vs Fitted, Scale-Location. Warnings appear when an assumption is violated. |
+| **ROC / AUC** | *Logistic regression only (GLM → Binomial).* ROC curve, AUC with 95% CI, 5-fold cross-validated AUC, and a confusion matrix with sensitivity, specificity, TSS and kappa at any threshold; one click sets the optimal threshold (maximum TSS). |
 | **Visualise** | Regression line with confidence bands (80%–99%); download as PNG. |
 
 > **Regression tips**
 >
 > - For **logistic regression**: make sure your response is 0/1, choose
->   GLM → Binomial.
+>   GLM → Binomial, then check the **ROC / AUC** sub-tab (AUC > 0.7
+>   acceptable, > 0.8 excellent).
 > - For **Poisson regression** (count data): choose GLM → Poisson; switch to
 >   Negative binomial if the dispersion statistic is well above 1.
 > - For **Gaussian response curves** (e.g. species abundance vs pH): use

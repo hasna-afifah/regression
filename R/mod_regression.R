@@ -124,6 +124,13 @@ regressionUI <- function(id) {
       )
     ),
 
+    # -- ROC / AUC (binary models) -----------------------------------------------
+    nav_panel(
+      "ROC / AUC", value = "roc",
+      uiOutput(ns("roc_note")),
+      uiOutput(ns("roc_body"))
+    ),
+
     # -- Visualise -------------------------------------------------------------
     nav_panel(
       "Visualise", value = "visualise",
@@ -249,6 +256,7 @@ regressionServer <- function(id, rv) {
       df <- df[complete.cases(df[, c(resp, preds, rands), drop = FALSE]),
                c(resp, preds, rands), drop = FALSE]
       msg <- NULL
+      lv01 <- c("0", "1")
       for (r in rands) {
         df[[r]] <- factor(df[[r]])
         if (nlevels(df[[r]]) < 2 || nlevels(df[[r]]) >= nrow(df)) {
@@ -266,6 +274,7 @@ regressionServer <- function(id, rv) {
         lv <- levels(factor(df[[resp]]))
         if (fam == "binomial" && length(lv) == 2) {
           df[[resp]] <- as.numeric(factor(df[[resp]])) - 1
+          lv01 <- lv
           msg <- sprintf("Response coded as 0 = '%s', 1 = '%s'.", lv[1], lv[2])
         } else {
           showNotification("The response must be numeric (or have exactly two categories for a binomial GLM).",
@@ -335,11 +344,13 @@ regressionServer <- function(id, rv) {
       m$scaling <- scaling
       m$spec    <- list(resp = resp, preds = preds, type = type, family = fam,
                         formula = f_txt, is_glm = type == "glm",
-                        rands = rands, mixed = mixed)
+                        rands = rands, mixed = mixed, lv01 = lv01)
       num_preds <- preds[vapply(raw[preds], is.numeric, logical(1))]
       updateSelectInput(session, "vis_x_var", choices = preds,
                         selected = if (length(num_preds)) num_preds[1] else preds[1])
-      showNotification(paste("Model fitted successfully!", msg), type = "message")
+      showNotification(paste("Model fitted successfully!", msg,
+                             if (type == "glm" && fam == "binomial") "See the ROC / AUC tab for model discrimination." else ""),
+                       type = "message")
       nav_select("tabs", "results", session = session)
     })
 
@@ -441,6 +452,11 @@ regressionServer <- function(id, rv) {
           stats_list[["Dispersion (Pearson chi-sq / df)"]] <- round(dispersion(), 3)
         if (m$spec$family == "negbin")
           stats_list[["Theta (negative binomial)"]] <- round(mod$theta, 3)
+      }
+      if (isTRUE(is_binary())) {
+        y <- m$data[[m$spec$resp]]
+        if (all(y %in% c(0, 1)) && length(unique(y)) == 2)
+          stats_list[["AUC (see the ROC / AUC tab)"]] <- round(auc_value(y, as.numeric(fitted(mod))), 3)
       }
       simple_dt(data.frame(Metric = names(stats_list),
                            Value  = as.character(unlist(stats_list))))
@@ -606,6 +622,183 @@ regressionServer <- function(id, rv) {
              y = "sqrt(|Std. Residuals|)") +
         theme_minimal()
       ggplotly(p)
+    })
+
+    # -- ROC / AUC -----------------------------------------------------------------
+    is_binary <- reactive({
+      !is.null(m$model) && isTRUE(m$spec$is_glm) && identical(m$spec$family, "binomial")
+    })
+
+    # The ROC / AUC sub-tab only exists for logistic (binomial) models: it is
+    # hidden at start-up and whenever the fitted model is not binomial.
+    observe({
+      if (isTRUE(is_binary())) nav_show("tabs", target = "roc", session = session)
+      else nav_hide("tabs", target = "roc", session = session)
+    })
+
+    output$roc_note <- renderUI(NULL)
+
+    output$roc_body <- renderUI({
+      req(is_binary())
+      ns <- session$ns
+      tagList(
+        if (isTRUE(m$spec$mixed))
+          radioButtons(ns("roc_re"), "Predictions used for the ROC curve",
+                       choices = c("Including random effects (conditional)" = "cond",
+                                   "Fixed effects only (population level - for new sites)" = "fixed"),
+                       inline = TRUE),
+        layout_columns(
+          col_widths = c(7, 5),
+          card(card_header("ROC curve"),
+               plotlyOutput(ns("roc_plot"), height = "520px"),
+               downloadButton(ns("download_roc"), "Download ROC plot",
+                              class = "btn-outline-success")),
+          tags$div(
+            card(card_header("Discrimination (AUC)"), fill = FALSE,
+                 DTOutput(ns("auc_table"), fill = FALSE),
+                 uiOutput(ns("auc_interp"))),
+            card(card_header("Classification at a probability threshold"), fill = FALSE,
+                 sliderInput(ns("roc_thr"), sprintf("Threshold: predict '%s' when probability >=", m$spec$lv01[2]),
+                             min = 0.01, max = 0.99, value = 0.5, step = 0.01),
+                 actionLink(ns("roc_opt"), "Use the optimal threshold (maximum TSS / Youden's J)"),
+                 DTOutput(ns("conf_mat"), fill = FALSE),
+                 DTOutput(ns("class_table"), fill = FALSE))
+          )
+        )
+      )
+    })
+
+    roc_data <- reactive({
+      req(is_binary())
+      y <- m$data[[m$spec$resp]]
+      validate(need(all(y %in% c(0, 1)), "The response must be coded 0/1."),
+               need(length(unique(y)) == 2, "The response needs both 0s and 1s."))
+      fixed_only <- isTRUE(m$spec$mixed) && identical(input$roc_re, "fixed")
+      p <- if (fixed_only) as.numeric(predict(m$model, re.form = NA, type = "response")) else
+        as.numeric(fitted(m$model))
+      a  <- auc_value(y, p)
+      n1 <- sum(y == 1); n0 <- sum(y == 0)
+      roc <- roc_curve(y, p)
+      list(y = y, p = p, roc = roc, auc = a, ci = auc_ci(a, n1, n0),
+           n1 = n1, n0 = n0, opt = roc_optimal(roc), fixed_only = fixed_only)
+    })
+
+    # cross-validation refits the model k times, so compute it once per model
+    cv_result <- reactive({
+      req(is_binary())
+      if (isTRUE(m$spec$mixed)) return(NA_real_)
+      cv_auc(m$model, m$data, m$spec$resp, k = 5)
+    })
+
+    observeEvent(m$model, {
+      if (isTRUE(is_binary())) updateSliderInput(session, "roc_thr", value = 0.5)
+    })
+
+    observeEvent(input$roc_opt, {
+      r <- roc_data()
+      updateSliderInput(session, "roc_thr", value = round(r$opt$threshold, 2))
+    })
+
+    roc_gg <- reactive({
+      r   <- roc_data()
+      thr <- if (is.null(input$roc_thr)) 0.5 else input$roc_thr
+      cs  <- class_stats(r$y, r$p, thr)
+      cur <- data.frame(fpr = 1 - cs$specificity, tpr = cs$sensitivity)
+      opt <- data.frame(fpr = r$opt$fpr, tpr = r$opt$tpr)
+      ggplot(r$roc, aes(x = fpr, y = tpr)) +
+        geom_abline(slope = 1, intercept = 0, linetype = "dashed", colour = "grey55") +
+        geom_area(fill = eco_green, alpha = 0.15) +
+        geom_path(colour = eco_green, linewidth = 1.1) +
+        geom_point(data = opt, colour = eco_orange, size = 4, shape = 18) +
+        geom_point(data = cur, colour = eco_red, size = 3.5) +
+        annotate("text", x = 0.62, y = 0.12, hjust = 0, size = 4.2,
+                 label = sprintf("AUC = %.3f\n95%% CI %.3f - %.3f",
+                                 r$auc, r$ci[["lower"]], r$ci[["upper"]])) +
+        scale_x_continuous(limits = c(0, 1), expand = c(0.01, 0.01)) +
+        scale_y_continuous(limits = c(0, 1), expand = c(0.01, 0.01)) +
+        labs(title = sprintf("ROC curve: %s", m$spec$resp),
+             subtitle = sprintf("Red dot = threshold %.2f; orange diamond = optimal threshold %.2f; dashed line = no better than chance",
+                                thr, r$opt$threshold),
+             x = "False positive rate (1 - specificity)",
+             y = "True positive rate (sensitivity)") +
+        theme_minimal()
+    })
+
+    output$roc_plot <- renderPlotly({
+      p <- roc_gg()
+      layout(ggplotly(p),
+             title = list(text = paste0(p$labels$title, "<br><sup>", p$labels$subtitle, "</sup>")),
+             margin = list(t = 70))
+    })
+
+    output$download_roc <- downloadHandler(
+      filename = function() paste0("roc_curve_", Sys.Date(), ".png"),
+      content  = function(file) ggsave(file, plot = roc_gg() + coord_equal(), width = 7, height = 7.4, dpi = 150, bg = "white")
+    )
+
+    output$auc_table <- renderDT({
+      r  <- roc_data()
+      cv <- cv_result()
+      rows <- list(
+        c("AUC (on the data used to fit the model)", sprintf("%.3f", r$auc)),
+        c("95% confidence interval", sprintf("%.3f - %.3f", r$ci[["lower"]], r$ci[["upper"]])),
+        c("5-fold cross-validated AUC",
+          if (isTRUE(m$spec$mixed)) "not computed for mixed models" else
+            if (is.na(cv)) "not available (too few 0s or 1s, or a factor level missing from a fold)" else
+              sprintf("%.3f", cv)),
+        c("Optimal threshold (max TSS)", sprintf("%.3f", r$opt$threshold)),
+        c("Presences (1) / absences (0)", sprintf("%d / %d", r$n1, r$n0))
+      )
+      if (isTRUE(m$spec$mixed)) {
+        p_fix  <- as.numeric(predict(m$model, re.form = NA, type = "response"))
+        p_cond <- as.numeric(fitted(m$model))
+        rows <- append(rows, list(
+          c("AUC with random effects", sprintf("%.3f", auc_value(r$y, p_cond))),
+          c("AUC fixed effects only",  sprintf("%.3f", auc_value(r$y, p_fix)))), after = 2)
+      }
+      tbl <- as.data.frame(do.call(rbind, rows), stringsAsFactors = FALSE)
+      names(tbl) <- c("Measure", "Value")
+      simple_dt(tbl)
+    })
+
+    output$auc_interp <- renderUI({
+      r  <- roc_data()
+      cv <- cv_result()
+      tagList(
+        help_note(
+          tags$b("In words: "),
+          sprintf("AUC = %.2f - discrimination is %s. If you pick at random one plot where %s = %s and one where it is %s, the model gives the first a higher predicted probability %.0f%% of the time (50%% = coin toss).",
+                  r$auc, auc_label(r$auc), m$spec$resp, m$spec$lv01[2], m$spec$lv01[1], 100 * r$auc),
+          if (!is.na(cv)) sprintf(" Cross-validated AUC (%.2f) estimates performance on new plots%s.",
+                                  cv, if (r$auc - cv > 0.05) " - the clearly lower value suggests the model is over-fitted" else "")),
+        tags$small(class = "text-muted",
+                   "Guide (Hosmer & Lemeshow): 0.5 = no discrimination, 0.7-0.8 acceptable, 0.8-0.9 excellent, > 0.9 outstanding. ",
+                   "AUC measures how well the model ranks presences above absences, not whether the predicted probabilities are well calibrated. ",
+                   "With pseudo-absences or very rare species, report TSS and sensitivity as well.")
+      )
+    })
+
+    output$conf_mat <- renderDT({
+      r  <- roc_data()
+      cs <- class_stats(r$y, r$p, input$roc_thr)
+      l0 <- m$spec$lv01[1]; l1 <- m$spec$lv01[2]
+      tbl <- data.frame(` ` = c(paste("Predicted", l1), paste("Predicted", l0)),
+                        a = c(cs$TP, cs$FN), b = c(cs$FP, cs$TN), check.names = FALSE)
+      names(tbl)[2:3] <- c(paste("Observed", l1), paste("Observed", l0))
+      simple_dt(tbl)
+    })
+
+    output$class_table <- renderDT({
+      r  <- roc_data()
+      cs <- class_stats(r$y, r$p, input$roc_thr)
+      tbl <- data.frame(
+        Measure = c(sprintf("Sensitivity (%s correctly predicted)", m$spec$lv01[2]),
+                    sprintf("Specificity (%s correctly predicted)", m$spec$lv01[1]),
+                    "Accuracy (all correct)",
+                    "TSS (sensitivity + specificity - 1)",
+                    "Cohen's kappa"),
+        Value = c(cs$sensitivity, cs$specificity, cs$accuracy, cs$TSS, cs$kappa))
+      simple_dt(round_df(tbl, 3))
     })
 
     # -- Visualise ---------------------------------------------------------------
