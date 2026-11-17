@@ -4,7 +4,7 @@ An interactive web application for ecological data analysis, built with R Shiny.
 It started as the *Trend Analysis Tool* (regression, correlation, GLM) and now
 covers the whole route from "which test do I need?" to multivariate analysis:
 upload your own data, explore it, check and fix normality, compare groups,
-measure correlation, fit regression models (with optional random factors), and run PCA / NMDS — step by step,
+measure correlation, fit regression models (with optional random factors), or run PCA — step by step,
 with a plain-language interpretation of every result.
 
 ![Decision chart: which statistical method to use](www/method_decision_chart.png)
